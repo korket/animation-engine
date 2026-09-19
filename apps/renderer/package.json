@@ -8,7 +8,9 @@
     "build": "remotion versions && tsx scripts/build.ts",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json --noEmit",
     "render:smoke": "tsx scripts/render-smoke.ts",
-    "test:render": "tsx scripts/verify-render.ts"
+    "test:render": "tsx scripts/verify-render.ts",
+    "render:scene": "tsx scripts/render-scene.ts",
+    "test:scene": "tsx scripts/verify-scene.ts"
   },
   "dependencies": {
     "@animation-engine/engine": "workspace:*",

@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { ALL_FORMATS, BufferSource, Input } from 'mediabunny';
 import { PNG } from 'pngjs';
 import { parseSmokeScene } from '@animation-engine/scene-schema';
-import { bundleSmoke } from './bundle.ts';
+import { bundleRenderer } from './bundle.ts';
 import { loadSmokeScene } from './load-scene.ts';
 import { fixturePath, outputDirectory } from './paths.ts';
 import { renderSmoke } from './render.ts';
@@ -99,7 +99,7 @@ async function checkVideo(path: string, width: number, height: number) {
 }
 
 const scene = await loadSmokeScene(fixturePath);
-const bundle = await bundleSmoke();
+const bundle = await bundleRenderer();
 const original = await renderSmoke(scene, outputDirectory, bundle);
 for (const [frame, color] of [
   [0, background],

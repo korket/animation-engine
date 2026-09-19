@@ -1,3 +1,3 @@
-import { bundleSmoke } from './bundle.ts';
+import { bundleRenderer } from './bundle.ts';
 
-console.log(`Remotion bundle: ${await bundleSmoke()}`);
+console.log(`Remotion bundle: ${await bundleRenderer()}`);

@@ -18,6 +18,8 @@
     "build": "pnpm -r --if-present build",
     "render:smoke": "pnpm --filter @animation-engine/renderer render:smoke",
     "test:render": "pnpm --filter @animation-engine/renderer test:render",
+    "render:scene": "pnpm --filter @animation-engine/renderer render:scene",
+    "test:scene": "pnpm --filter @animation-engine/renderer test:scene",
     "test:dashboard": "pnpm --filter @animation-engine/dashboard test:dashboard",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },

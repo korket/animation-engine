@@ -52,6 +52,14 @@ parent-relative coordinates and frame-grid timing are justified by Milestone 1's
 scene graph requirement; see SCENE_SCHEMA.md for compatibility and boundaries.
 The existing smoke format and evaluator remain supported regression fixtures.
 
+The renderer's `Scene` composition compiles the validated input once per prop
+change, asks the engine to evaluate Remotion's current integer frame, and maps
+resolved leaves directly to SVG. It owns no placement or timing semantics.
+The local `render:scene` command uses the Node loader and checks H.264's even-size
+constraint before bundling. Composition selection and rendering receive identical
+props. The two compositions share browser provisioning and explicit software
+H.264 settings, with browser cleanup in `finally`.
+
 As architecture is established, document only durable decisions that future maintainers need to understand.
 
 Keep the following invariants visible:

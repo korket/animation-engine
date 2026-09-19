@@ -1,6 +1,7 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { SmokeScene } from '@animation-engine/scene-schema';
+import type { Scene, SmokeScene } from '@animation-engine/scene-schema';
+import { sceneRenderSettings } from './scene-settings.ts';
 import {
   ensureBrowser,
   openBrowser,
@@ -13,6 +14,41 @@ export async function renderSmoke(
   scene: SmokeScene,
   directory: string,
   serveUrl: string,
+) {
+  return renderComposition(scene, directory, serveUrl, 'Smoke', 'smoke.mp4', [
+    ...new Set([
+      0,
+      Math.floor((scene.fade.startFrame + scene.fade.endFrame) / 2),
+      scene.fade.endFrame,
+      scene.durationInFrames - 1,
+    ]),
+  ]);
+}
+
+export async function renderScene(
+  scene: Scene,
+  directory: string,
+  serveUrl: string,
+  referenceFrames?: readonly number[],
+) {
+  const { frames } = sceneRenderSettings(scene, referenceFrames);
+  return renderComposition(
+    scene,
+    directory,
+    serveUrl,
+    'Scene',
+    'scene.mp4',
+    frames,
+  );
+}
+
+async function renderComposition(
+  scene: Scene | SmokeScene,
+  directory: string,
+  serveUrl: string,
+  id: string,
+  filename: string,
+  frames: readonly number[],
 ) {
   await mkdir(directory, { recursive: true });
   // A failed or ordinary rerender must not retain a previous success report.
@@ -32,11 +68,11 @@ export async function renderSmoke(
     const inputProps = { scene };
     const composition = await selectComposition({
       serveUrl,
-      id: 'Smoke',
+      id,
       inputProps,
       puppeteerInstance: browser,
     });
-    const videoPath = resolve(directory, 'smoke.mp4');
+    const videoPath = resolve(directory, filename);
     await renderMedia({
       composition,
       serveUrl,
@@ -51,14 +87,6 @@ export async function renderSmoke(
       concurrency: 2,
       outputLocation: videoPath,
     });
-    const frames = [
-      ...new Set([
-        0,
-        Math.floor((scene.fade.startFrame + scene.fade.endFrame) / 2),
-        scene.fade.endFrame,
-        scene.durationInFrames - 1,
-      ]),
-    ];
     for (const frame of frames) {
       await renderStill({
         composition,
