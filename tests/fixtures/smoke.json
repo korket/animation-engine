@@ -1,0 +1,17 @@
+{
+  "format": "smoke-v0",
+  "id": "bootstrap-circle",
+  "purpose": "Prove JSON-driven SVG animation renders to MP4",
+  "width": 640,
+  "height": 360,
+  "fps": 30,
+  "durationInFrames": 60,
+  "background": "background",
+  "shape": {
+    "type": "circle",
+    "placement": "center",
+    "radius": 60,
+    "fill": "accent"
+  },
+  "fade": { "startFrame": 0, "endFrame": 30 }
+}
