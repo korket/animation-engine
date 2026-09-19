@@ -1,5 +1,8 @@
 import type { SmokeScene } from '@animation-engine/scene-schema';
 
+export { compileScene, evaluateScene } from './scene.ts';
+export type { CompiledScene, SceneElement, SceneFrame } from './scene.ts';
+
 export type SmokeFrame = Readonly<{
   width: number;
   height: number;
