@@ -1,8 +1,9 @@
 # Animation engine
 
 Local-first, deterministic SVG animation rendered through Remotion.
-Milestone 0 provides repository tooling, a local dashboard skeleton, and a
-two-second JSON-driven circle fade. It is not yet a production studio.
+Milestone 1 adds a versioned JSON scene tree, deterministic geometry and timing,
+and local SVG-to-MP4 rendering. The Milestone 0 circle fade remains a regression
+fixture; the dashboard remains a bootstrap page.
 
 ## Quick start
 
@@ -18,12 +19,15 @@ The dashboard opens at <http://127.0.0.1:5173>. In another terminal:
 
 ```text
 pnpm dev:renderer
+pnpm render:scene tests/fixtures/scene-v1.json
+pnpm test:scene
 pnpm render:smoke
 pnpm test:render
 ```
 
-Remotion Studio provides the interactive fixture preview. Render artifacts are
-written under `out/smoke/`. Initial rendering downloads a managed browser and
+Remotion Studio provides `Scene` and `Smoke` composition previews. Core scene
+artifacts are written under `out/scene/`; smoke artifacts under `out/smoke/`.
+Initial rendering downloads a managed browser and
 requires internet access; the scene itself uses no network media.
 
 ## Documentation
@@ -32,7 +36,7 @@ requires internet access; the scene itself uses no network media.
 - [Architecture and milestone boundary](docs/ARCHITECTURE.md)
 - [Setup, commands, and troubleshooting](docs/DEVELOPMENT.md)
 - [Tests and rendering verification](docs/TESTING.md)
-- [Smoke input contract](docs/SCENE_SCHEMA.md)
+- [Versioned scene and smoke input contracts](docs/SCENE_SCHEMA.md)
 - [Style guide status](docs/STYLE_GUIDE.md)
 - [Asset system](docs/ASSET_SYSTEM.md)
 - [Test reel](docs/TEST_REEL.md)

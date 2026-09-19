@@ -1,6 +1,6 @@
 # Development Workflow
 
-## Milestone 0 setup
+## Local setup
 
 Use Node 24.13.0 and pnpm 11.19.0. Install Node using your normal platform
 installer/version manager; `npm install --global pnpm@11.19.0` installs the pinned
@@ -14,32 +14,58 @@ pnpm verify
 pnpm test:dashboard
 pnpm render:smoke
 pnpm test:render
+pnpm render:scene tests/fixtures/scene-v1.json
+pnpm test:scene
 ```
 
 `pnpm dev` serves the dashboard at http://127.0.0.1:5173 and fails if that port is
-occupied. `pnpm dev:renderer` starts Remotion Studio for the fixture. Stop either
+occupied. `pnpm dev:renderer` starts Remotion Studio with `Scene` and `Smoke`
+compositions. Stop either
 with Ctrl+C. The dashboard is only a bootstrap page, not a production workflow.
 
 Commands:
 
-| Command               | Behavior                                                    |
-| --------------------- | ----------------------------------------------------------- |
-| `pnpm typecheck`      | Strict checks for workspace source, scripts, and tests      |
-| `pnpm lint`           | TypeScript/React rules and core dependency boundaries       |
-| `pnpm format:check`   | Read-only formatting check                                  |
-| `pnpm format`         | Explicit formatting changes to maintained bootstrap files   |
-| `pnpm test`           | Parser, runtime, and file-loader unit tests                 |
-| `pnpm build`          | Build dashboard and Remotion bundle                         |
-| `pnpm verify`         | Formatting, lint, typecheck, unit tests, and builds         |
-| `pnpm test:dashboard` | Start, request, compile, and close a local dashboard server |
-| `pnpm render:smoke`   | Render fixture MP4 and selected PNG frames                  |
-| `pnpm test:render`    | Render and validate the original and changed scene inputs   |
+| Command                                       | Behavior                                                           |
+| --------------------------------------------- | ------------------------------------------------------------------ |
+| `pnpm typecheck`                              | Strict checks for workspace source, scripts, and tests             |
+| `pnpm lint`                                   | TypeScript/React rules and core dependency boundaries              |
+| `pnpm format:check`                           | Read-only formatting check                                         |
+| `pnpm format`                                 | Explicit formatting changes to maintained bootstrap files          |
+| `pnpm test`                                   | Parser, runtime, and file-loader unit tests                        |
+| `pnpm build`                                  | Build dashboard and Remotion bundle                                |
+| `pnpm verify`                                 | Formatting, lint, typecheck, unit tests, and builds                |
+| `pnpm test:dashboard`                         | Start, request, compile, and close a local dashboard server        |
+| `pnpm render:smoke`                           | Render fixture MP4 and selected PNG frames                         |
+| `pnpm test:render`                            | Render and validate the original and changed scene inputs          |
+| `pnpm render:scene <json> [output-directory]` | Render a version 1 scene and selected PNG frames                   |
+| `pnpm test:scene`                             | Verify scene-tree timing, geometry, changed JSON, and MP4 metadata |
 
 An alternative JSON file may be supplied as
 `pnpm render:smoke "tests/fixtures/my scene.json"`. Relative input paths are
 resolved from the repository root; artifacts always go to `out/smoke/` and are
 overwritten on rerun. Output from a failed run must not be treated as verified.
 Only a successful `test:render` run produces current verification evidence.
+
+### Core scene rendering
+
+Use `pnpm render:scene "tests/fixtures/scene-v1.json" "out/my scene"` for version 1
+scenes. Input and output paths resolve from the repository root, including when
+pnpm runs the command inside the renderer workspace. The default output directory
+is `out/scene/`. The command writes `scene.mp4` and PNGs at the first, midpoint,
+and final frames. Those named files are overwritten on rerun; use a dedicated
+output directory. Additional old frames may remain and are not proof of success.
+
+The JSON file is loaded and validated before bundling or downloading a browser.
+See [the scene contract](SCENE_SCHEMA.md#version-1-basic-scene-tree) for supported
+nodes and timing. H.264/yuv420p export additionally requires even width and height;
+odd dimensions are valid scene data but fail at the exporter boundary. Malformed
+JSON, invalid scene fields, unsupported timing, encoding, and browser failures
+produce a nonzero exit code. There is no fallback content.
+
+`pnpm test:scene` writes `out/scene/verification.json` only after both real render
+variants pass. Ordinary rendering removes a previous report when it starts;
+always check the current command's exit status. The verifier's changed input and
+its artifacts are under `out/scene/variant with spaces/`.
 
 The two fixed smoke colors are not an approved style guide. Inputs are test
 fixtures, not episode definitions or approved final-production content.
@@ -82,7 +108,8 @@ same commands. Do not disable system protections to run the project.
 
 Generated `out/`, `.cache/`, and app `dist/` directories are ignored. Handwritten
 AGENTS files and the original specification are excluded from automatic formatting.
-There are no Git hooks or automatic commits.
+There are no Git hooks. Agent commits follow the automatic commit policy in
+the root `AGENTS.md`.
 
 ## Purpose
 

@@ -41,6 +41,45 @@ blocked by the host's unavailable virtualization service/required Windows featur
 (`HCS_E_SERVICE_NOT_AVAILABLE`). Full two-platform milestone acceptance remains
 pending Linux verification; no Windows features were changed to work around it.
 
+## Milestone 1 verification
+
+`pnpm test` also covers strict versioned schema validation, frame-grid conversion,
+parent interval containment, unique IDs, nested geometry, stable paint order,
+deterministic evaluation, file-loader failures, and exporter preflight checks.
+
+`pnpm test:scene` renders `tests/fixtures/scene-v1.json` through the Node loader,
+engine, SVG, and Remotion. The three-second fixture contains a centered panel:
+the blue circle appears at 0.5 seconds and disappears at 1.5 seconds; the orange
+circle appears at 1 second; a dark rectangle covers its center at 2 seconds.
+Nested groups establish placement and offset child timing.
+
+Reference frames 0, 14, 15, 29, 30, 44, 45, 59, 60, and 89 check both sides of
+timing boundaries, panel bounds, circle geometry, and overlap order. Pixel checks
+use explicit expected colors with tolerance 2, away from antialiased edges.
+The MP4 must contain H.264 video at 640×360, 30 fps, 3 seconds, and 90 packets.
+
+A second JSON file changes the viewport to 800×400, rate to 24 fps, duration to
+4 seconds, and parent start to 0.5 seconds. It is reloaded from a path containing
+spaces and actually rendered. Fourteen reference frames check the shifted timing,
+center placement, and empty first/final frames. Video metadata must follow the
+changed input (96 packets). Output is under `out/scene/` with a success report
+written only after every assertion passes. Inspect the PNGs and play `scene.mp4`
+at normal speed before accepting changes to this path.
+
+CI runs both the original smoke regression and core scene render checks on
+Windows and Ubuntu and uploads both artifact directories. Linux results remain
+pending until that job or an equivalent Linux run passes.
+
+### Core runtime verification record — 2026-09-20
+
+Windows: frozen-lockfile installation, `pnpm verify` (136 tests and both builds),
+the original smoke render regression, and both core scene renders passed locally.
+Core scene PNGs were visually inspected and the MP4 played in the browser.
+The public CLI also rendered with spaces in both input and output paths, and
+rejected missing arguments and a smoke-format input with nonzero exit codes.
+No dependencies were added. Linux execution remains pending for the host reason
+recorded above; the extended CI jobs have not been run remotely.
+
 ## Principle
 
 Tests document supported behavior and protect the codebase from regressions.
