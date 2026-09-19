@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "core-runtime-proof",
+  "purpose": "Show a nested scene graph with timed elements and predictable draw order",
+  "emotion": "neutral",
+  "importance": "low",
+  "width": 640,
+  "height": 360,
+  "fps": 30,
+  "duration": 3,
+  "background": "#102030",
+  "nodes": [
+    {
+      "id": "panel",
+      "type": "group",
+      "position": "center",
+      "width": 400,
+      "height": 200,
+      "start": 0,
+      "duration": 3,
+      "children": [
+        {
+          "id": "panel-background",
+          "type": "rect",
+          "position": "center",
+          "width": 400,
+          "height": 200,
+          "fill": "#E8EDF2",
+          "start": 0,
+          "duration": 3
+        },
+        {
+          "id": "left-dot",
+          "type": "circle",
+          "position": { "x": 100, "y": 100 },
+          "radius": 40,
+          "fill": "#287CC0",
+          "start": 0.5,
+          "duration": 1
+        },
+        {
+          "id": "right-group",
+          "type": "group",
+          "position": { "x": 300, "y": 100 },
+          "width": 100,
+          "height": 100,
+          "start": 1,
+          "duration": 2,
+          "children": [
+            {
+              "id": "right-dot",
+              "type": "circle",
+              "position": "center",
+              "radius": 40,
+              "fill": "#F0A040",
+              "start": 0,
+              "duration": 2
+            },
+            {
+              "id": "overlay",
+              "type": "rect",
+              "position": "center",
+              "width": 30,
+              "height": 30,
+              "fill": "#102030",
+              "start": 1,
+              "duration": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

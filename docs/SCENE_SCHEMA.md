@@ -32,7 +32,64 @@ The checked-in fixture is 640 × 360 at 30 fps for 60 frames. Its radius is 60;
 opacity is 0 at frame 0, 0.5 at frame 15, and 1 at frames 30 and 59.
 No raw positioning escape hatch is implemented for this semantic-only fixture.
 
-## Future production schema
+## Version 1: basic scene tree
+
+`parseScene(unknown)` validates the `schemaVersion: 1` contract. Every scene has
+`id`, `purpose`, `emotion`, `importance` (`low`, `medium`, or `high`), `width`,
+`height`, `fps`, `duration`, `background`, and `nodes`. These fields are required.
+Dimensions and fps are positive safe integers. Duration is positive seconds.
+Colors are six-digit hex literals for basic SVG geometry; semantic asset/style
+lookup belongs to Milestone 2. This low-level geometry path does not yet implement
+the templates, actors, layouts, or animations shown in the handoff's full example.
+
+Nodes form an ordered tree and have globally unique, nonempty IDs. Every node
+requires `type`, `position`, `start`, and `duration` in addition to `id`:
+
+- `circle`: positive `radius`, plus `fill`.
+- `rect`: positive `width` and `height`, plus `fill`.
+- `group`: positive `width` and `height`, plus a `children` array.
+
+Position is either `center` or `{ "x": number, "y": number }`, measured from the
+parent's top-left. A node's position locates its center. A group's size defines
+the coordinate bounds for its children; it translates them without scaling or
+clipping. Circles use center coordinates; rectangle/group top-left coordinates
+are their center minus half their size. Root positions use the canvas bounds.
+Off-canvas coordinates are allowed as the explicit escape hatch; the final SVG
+viewport clips at the canvas edge. Only translation is supported in this milestone.
+
+The tree paints depth first in JSON order, with later leaves covering earlier
+ones. There are no cross-node references, so JSON cannot encode cycles or missing
+parents. Unknown fields, unsupported node kinds, and duplicate IDs fail visibly.
+An empty node array intentionally renders the background only.
+
+### Timing
+
+Node start times are relative to the parent's start; child intervals must fit
+entirely inside their parent's duration. All times are seconds on the fps grid.
+`timeToFrames(seconds, fps)` rejects subframe times instead of silently rounding
+them; a tolerance of `1e-7` frames absorbs floating-point representation noise
+(for example `0.1 + 0.2`). Each scene/node duration must span at least one frame.
+Visibility is start-inclusive, end-exclusive. There are no hidden duration defaults.
+
+At 30 fps, a node starting at 0.5 seconds for one second is visible at frames
+15–44 and absent at 45. A child starting one second inside a group that starts
+at one second appears at scene frame 60. The checked-in `scene-v1.json` demonstrates
+these boundaries. Non-grid timings, such as 0.05 seconds at 30 fps, are invalid.
+
+### Compatibility and justification
+
+The new version marker separates this extensible core from the preserved
+`smoke-v0` integration fixture; existing smoke data and commands keep their behavior.
+Changes to version 1's field meanings require a new schema version and a migration
+decision. No migration is needed for the additive introduction of version 1.
+Group bounds, center positioning, ordered painting, and frame-grid timing are
+the minimum explicit contracts needed to verify a reusable scene graph. Anchors,
+rotations/scales, layout templates, easing, and asset identity are deferred.
+
+SVG accepts odd canvas dimensions. The local H.264/yuv420p export additionally
+requires even width and height and rejects incompatible settings before rendering.
+
+## Future schema additions
 
 When populated, document:
 
