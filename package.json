@@ -1,0 +1,37 @@
+{
+  "name": "animation-engine",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": "24.13.0",
+    "pnpm": "11.19.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @animation-engine/dashboard dev",
+    "dev:renderer": "pnpm --filter @animation-engine/renderer dev",
+    "typecheck": "pnpm -r typecheck && tsc -p tsconfig.node.json --noEmit",
+    "lint": "eslint .",
+    "format:check": "prettier . --check",
+    "format": "prettier . --write",
+    "test": "vitest run",
+    "build": "pnpm -r --if-present build",
+    "render:smoke": "pnpm --filter @animation-engine/renderer render:smoke",
+    "test:render": "pnpm --filter @animation-engine/renderer test:render",
+    "test:dashboard": "pnpm --filter @animation-engine/dashboard test:dashboard",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "prettier": "3.9.8",
+    "tsx": "4.23.13",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0",
+    "vitest": "5.0.1"
+  }
+}
