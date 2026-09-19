@@ -1,0 +1,84 @@
+{
+  "format": "asset-catalog-v1",
+  "themes": [
+    {
+      "id": "studio-proof",
+      "version": "1",
+      "styleVersion": "1",
+      "status": "review-candidate",
+      "colors": {
+        "background": "#F4F1E8",
+        "surface": "#FFFFFF",
+        "primary": "#326B87",
+        "secondary": "#B8CFB0",
+        "accent": "#E5A83B",
+        "outline": "#263442"
+      },
+      "outlineWidth": 4,
+      "cornerRadius": 8
+    },
+    {
+      "id": "studio-proof",
+      "version": "2",
+      "styleVersion": "1",
+      "status": "review-candidate",
+      "colors": {
+        "background": "#192734",
+        "surface": "#EDF3F5",
+        "primary": "#74B8CA",
+        "secondary": "#D6A4A4",
+        "accent": "#E8BD65",
+        "outline": "#09131C"
+      },
+      "outlineWidth": 6,
+      "cornerRadius": 12
+    }
+  ],
+  "assets": [
+    {
+      "id": "prop_phone",
+      "version": "1",
+      "styleVersion": "1",
+      "category": "prop",
+      "description": "Front view smartphone with blank screen",
+      "tags": ["phone", "technology", "handheld"],
+      "file": "artwork/phone-v1.svg",
+      "sha256": "e33465f528b7fd23e6d2318993c90bded92cddf8a85a576c277a206219131883",
+      "provenance": {
+        "creator": "Animation engine project",
+        "source": "Original hand-authored geometric SVG for Milestone 2",
+        "license": "Project-owned artwork; no third-party source"
+      }
+    },
+    {
+      "id": "prop_phone",
+      "version": "2",
+      "styleVersion": "1",
+      "category": "prop",
+      "description": "Front view smartphone with notification indicator",
+      "tags": ["phone", "technology", "handheld", "notification"],
+      "file": "artwork/phone-v2.svg",
+      "sha256": "b6483fa8e1a4af74551993ebe19922e262e66e1a5c50131e2cc5a2d25e44764f",
+      "provenance": {
+        "creator": "Animation engine project",
+        "source": "Original hand-authored geometric SVG for Milestone 2",
+        "license": "Project-owned artwork; no third-party source"
+      }
+    },
+    {
+      "id": "prop_book",
+      "version": "1",
+      "styleVersion": "1",
+      "category": "prop",
+      "description": "Closed reference book viewed from front",
+      "tags": ["book", "learning", "memory", "reading"],
+      "file": "artwork/book-v1.svg",
+      "sha256": "fa463c9fde40bc1d2855322d40a764b33dfcae9fd56bbab9ade21b95894c49fe",
+      "provenance": {
+        "creator": "Animation engine project",
+        "source": "Original hand-authored geometric SVG for Milestone 2",
+        "license": "Project-owned artwork; no third-party source"
+      }
+    }
+  ]
+}

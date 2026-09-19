@@ -19,7 +19,7 @@ export default [
     },
   },
   {
-    files: ['packages/{engine,scene-schema}/**/*.ts'],
+    files: ['packages/{engine,scene-schema,assets}/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
