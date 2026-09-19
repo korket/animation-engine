@@ -1,0 +1,29 @@
+{
+  "name": "@animation-engine/renderer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "remotion studio src/index.tsx",
+    "build": "remotion versions && tsx scripts/build.ts",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "render:smoke": "tsx scripts/render-smoke.ts",
+    "test:render": "tsx scripts/verify-render.ts"
+  },
+  "dependencies": {
+    "@animation-engine/engine": "workspace:*",
+    "@animation-engine/scene-schema": "workspace:*",
+    "@remotion/bundler": "4.0.526",
+    "@remotion/cli": "4.0.526",
+    "@remotion/renderer": "4.0.526",
+    "remotion": "4.0.526",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "zod": "4.5.4",
+    "mediabunny": "1.58.1",
+    "pngjs": "7.0.0",
+    "@types/pngjs": "6.0.5"
+  }
+}
