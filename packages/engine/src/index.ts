@@ -50,3 +50,4 @@ export function evaluateSmokeScene(
     },
   };
 }
+export type { VectorShape } from './visuals.ts';

@@ -6,6 +6,8 @@ import { parseAnimations, parseCamera } from './choreography.ts';
 import type { AnimationClip, CameraClip } from './choreography.ts';
 import { parseCharacter, parseAttachment } from './character.ts';
 import type { CharacterDefinition, Attachment } from './character.ts';
+import { parseVisual, visualFields } from './visuals.ts';
+import type { VisualDefinition } from './visuals.ts';
 export type { Position } from './layout.ts';
 
 /** Literal colors for basic SVG geometry; semantic asset styling arrives separately. */
@@ -23,6 +25,7 @@ type NodeBase = Readonly<{
 
 export type SceneNode = NodeBase &
   (
+    | (VisualDefinition & Readonly<{ width: number; height: number }>)
     | (CharacterDefinition &
         Readonly<{ type: 'character'; width: number; height: number }>)
     | Readonly<{
@@ -146,6 +149,7 @@ export function parseScene(input: unknown): Scene {
         'expression',
         'walkStepDuration',
         'actions',
+        ...visualFields,
       ]);
       const id = text(node.id, `${p}.id`);
       if (ids.has(id)) fail(`${p}.id`, `duplicate node ID "${id}"`);
@@ -180,6 +184,18 @@ export function parseScene(input: unknown): Scene {
           : {}),
       };
       switch (node.type) {
+        case 'memoryOrb':
+        case 'thoughtBubble':
+        case 'contextBubble':
+        case 'barChart':
+        case 'label':
+          if (!theme) fail(p, 'visual components require an explicit theme');
+          return {
+            ...base,
+            width: positive(node.width, `${p}.width`),
+            height: positive(node.height, `${p}.height`),
+            ...parseVisual(node, p, fps, length, common),
+          };
         case 'character':
           object(node, p, [
             ...common,
@@ -256,7 +272,7 @@ export function parseScene(input: unknown): Scene {
         default:
           return fail(
             `${p}.type`,
-            'expected group, circle, rect, asset, or character',
+            'expected group, circle, rect, asset, character, memoryOrb, thoughtBubble, contextBubble, label, or barChart',
           );
       }
     });

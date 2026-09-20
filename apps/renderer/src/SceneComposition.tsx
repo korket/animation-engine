@@ -2,10 +2,30 @@ import { useMemo } from 'react';
 import { useCurrentFrame } from 'remotion';
 import { compileScene, evaluateScene } from '@animation-engine/engine';
 import type { Scene } from '@animation-engine/scene-schema';
-import type { AssetLibrary, StyledShape } from '@animation-engine/assets';
+import type { AssetLibrary } from '@animation-engine/assets';
+import type { VectorShape } from '@animation-engine/engine';
+import { fontFamily } from './font';
 
-function AssetShape({ shape }: { shape: StyledShape }) {
+function AssetShape({ shape }: { shape: VectorShape }) {
+  if (shape.type === 'text')
+    return (
+      <text
+        x={shape.x}
+        y={shape.y}
+        fill={shape.fill}
+        opacity={shape.opacity}
+        fontFamily={fontFamily}
+        fontSize={shape.fontSize}
+        fontWeight={400}
+        textAnchor={shape.textAnchor}
+        textLength={shape.textLength}
+        lengthAdjust="spacingAndGlyphs"
+      >
+        {shape.text}
+      </text>
+    );
   const style = {
+    opacity: shape.opacity,
     fill: shape.fill,
     stroke: shape.stroke,
     strokeWidth: shape.strokeWidth,

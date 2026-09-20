@@ -94,3 +94,4 @@ export function parseSmokeScene(input: unknown): SmokeScene {
   };
 }
 export type { CharacterDefinition, Attachment } from './character.ts';
+export type { VisualDefinition, MemoryState } from './visuals.ts';

@@ -19,12 +19,15 @@ import {
   characterAnchorNames,
 } from '@animation-engine/characters';
 import type { CharacterState } from '@animation-engine/characters';
+import { visualAnchor } from './visuals.ts';
+import type { VisualRuntime } from './visuals.ts';
 
 export type Matrix = readonly [number, number, number, number, number, number];
 const identity: Matrix = [1, 0, 0, 1, 0, 0];
 export type NodeFrame = Readonly<{
   attachment?: Attachment;
   character?: CharacterState;
+  visual?: VisualRuntime;
   id: string;
   parentId?: string;
   group: boolean;
@@ -86,6 +89,9 @@ export function compileChoreography(
         'left',
         'right',
         ...(target.character ? characterAnchorNames : []),
+        ...(target.visual?.definition.type === 'barChart'
+          ? target.visual.definition.bars.map((b) => `bar.${b.id}`)
+          : []),
       ];
       if (!names.includes(node.attachment.anchor))
         throw new Error(
@@ -294,6 +300,20 @@ export function resolveAnchor(
   frame: number,
   reduced: boolean,
 ): Point {
+  if (node.visual?.definition.type === 'barChart' && name.startsWith('bar.')) {
+    const anchor = visualAnchor(
+      node.visual,
+      node.width,
+      node.height,
+      name,
+      Math.max(0, frame - node.startFrame),
+      reduced,
+    );
+    return {
+      x: node.cx - node.width / 2 + anchor.x,
+      y: node.cy - node.height / 2 + anchor.y,
+    };
+  }
   if (
     node.character &&
     (characterAnchorNames as readonly string[]).includes(name)

@@ -6,11 +6,7 @@ import {
   resolvePaint,
   styleArtwork,
 } from '@animation-engine/assets';
-import type {
-  AssetLibrary,
-  StyledShape,
-  Theme,
-} from '@animation-engine/assets';
+import type { AssetLibrary, Theme } from '@animation-engine/assets';
 import {
   evaluateCharacter,
   characterProvenance,
@@ -25,6 +21,8 @@ import type {
   Presentation,
 } from './choreography.ts';
 import type { Layout } from '@animation-engine/scene-schema';
+import { evaluateVisual, fontIdentity } from './visuals.ts';
+import type { VectorShape, VisualRuntime } from './visuals.ts';
 
 type ElementBase = Readonly<{
   id: string;
@@ -57,8 +55,9 @@ export type SceneElement = ElementBase &
         height: number;
         viewBoxWidth: number;
         viewBoxHeight: number;
-        shapes: readonly StyledShape[];
+        shapes: readonly VectorShape[];
         character?: Readonly<{ state: CharacterState; theme: Theme }>;
+        visual?: VisualRuntime;
       }>
   );
 
@@ -85,6 +84,7 @@ export type CompiledScene = Readonly<{
       version: string;
       provenance: typeof characterProvenance;
     }[];
+    fonts?: readonly (typeof fontIdentity)[];
   }>;
 }>;
 
@@ -172,6 +172,30 @@ export function compileScene(
               })),
             }
           : undefined;
+      const visual: VisualRuntime | undefined =
+        [
+          'memoryOrb',
+          'thoughtBubble',
+          'contextBubble',
+          'barChart',
+          'label',
+        ].includes(node.type) && theme
+          ? {
+              definition: node as Extract<
+                SceneNode,
+                {
+                  type:
+                    | 'memoryOrb'
+                    | 'thoughtBubble'
+                    | 'contextBubble'
+                    | 'barChart'
+                    | 'label';
+                }
+              >,
+              theme,
+              fps: scene.fps,
+            }
+          : undefined;
       if (
         ![cx, cy, width, height, x, y, x + width, y + height].every(
           Number.isFinite,
@@ -184,6 +208,7 @@ export function compileScene(
       nodeFrames.push({
         ...(node.attachment ? { attachment: node.attachment } : {}),
         ...(character ? { character } : {}),
+        ...(visual ? { visual } : {}),
         id: node.id,
         ...(parent.id ? { parentId: parent.id } : {}),
         group: node.type === 'group',
@@ -203,6 +228,35 @@ export function compileScene(
           startFrame,
           id: node.id,
           ...(node.layout ? { layout: node.layout } : {}),
+        });
+      } else if (visual) {
+        const shapes = evaluateVisual(
+          visual,
+          width,
+          height,
+          0,
+          scene.motionMode === 'reduced',
+        );
+        evaluateVisual(
+          visual,
+          width,
+          height,
+          endFrame - startFrame,
+          scene.motionMode === 'reduced',
+        );
+        elements.push({
+          id: node.id,
+          type: 'asset',
+          x,
+          y,
+          width,
+          height,
+          startFrame,
+          endFrame,
+          viewBoxWidth: width,
+          viewBoxHeight: height,
+          shapes,
+          visual,
         });
       } else if (node.type === 'character') {
         if (!theme || !character)
@@ -273,7 +327,7 @@ export function compileScene(
           startFrame,
           endFrame,
         });
-      } else {
+      } else if (node.type === 'rect') {
         elements.push({
           id: node.id,
           type: 'rect',
@@ -308,7 +362,7 @@ export function compileScene(
     ...(scene.animations ||
     scene.camera ||
     scene.motionMode ||
-    nodeFrames.some((node) => node.attachment || node.character)
+    nodeFrames.some((node) => node.attachment || node.character || node.visual)
       ? { choreography: compileChoreography(scene, nodeFrames, paint) }
       : {}),
     ...(theme
@@ -321,6 +375,9 @@ export function compileScene(
             },
             assets: usage,
             ...(characters.length ? { characters } : {}),
+            ...(elements.some((e) => e.type === 'asset' && e.visual)
+              ? { fonts: [fontIdentity] }
+              : {}),
           },
         }
       : {}),
@@ -351,6 +408,17 @@ export function evaluateScene(scene: CompiledScene, frame: number): SceneFrame {
     elements: motion
       ? elements.map((element) => ({
           ...element,
+          ...(element.type === 'asset' && element.visual
+            ? {
+                shapes: evaluateVisual(
+                  element.visual,
+                  element.width,
+                  element.height,
+                  frame - element.startFrame,
+                  scene.choreography?.reduced ?? false,
+                ),
+              }
+            : {}),
           ...(element.type === 'asset' && element.character
             ? {
                 shapes: styleArtwork(
