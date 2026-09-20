@@ -1,9 +1,9 @@
 # Animation engine
 
 Local-first, deterministic SVG animation rendered through Remotion.
-Milestone 4 adds versioned human characters, poses, modular expressions, a four-frame
-walk, and props attached to moving anchors. Earlier render fixtures remain regression
-checks; the dashboard remains a bootstrap page. Character art is a review candidate.
+Milestone 5 adds memory states, thought/context bubbles, labels, and animated bar
+charts with annotations and moving anchors. Earlier render fixtures remain regression
+checks; the dashboard remains a bootstrap page. Artwork remains a review candidate.
 
 ## Quick start
 
@@ -19,6 +19,8 @@ The dashboard opens at <http://127.0.0.1:5173>. In another terminal:
 
 ```text
 pnpm dev:renderer
+pnpm render:scene tests/fixtures/cognitive-v1.json out/cognitive
+pnpm test:cognitive
 pnpm render:scene tests/fixtures/characters-v1.json out/characters
 pnpm test:characters
 pnpm render:scene tests/fixtures/motion-v1.json out/motion
@@ -31,7 +33,9 @@ pnpm render:smoke
 pnpm test:render
 ```
 
-Remotion Studio provides `Characters`, `Motion`, `Assets`, `Scene`, and `Smoke` previews.
+Remotion Studio provides `Cognitive`, `Characters`, `Motion`, `Assets`, `Scene`, and `Smoke` previews.
+Cognitive checks write the synthetic-data proof, changed-data and reduced-motion
+variants, and repeat-render evidence to `out/cognitive/`.
 Character checks write the acting proof, pose grid, reduced-motion variant, and
 repeat-render evidence to `out/characters/`.
 Motion and asset checks write `out/motion/` and `out/assets/`; core and smoke
@@ -49,6 +53,7 @@ requires internet access; the scene itself uses no network media.
 - [Style guide status](docs/STYLE_GUIDE.md)
 - [Layout, animation, and camera contracts](docs/ANIMATION.md)
 - [Characters, expressions, and attachments](docs/CHARACTERS.md)
+- [Cognitive visuals, charts, and text](docs/COGNITIVE_CHARTS.md)
 - [Asset system](docs/ASSET_SYSTEM.md)
 - [Test reel](docs/TEST_REEL.md)
 - [Non-goals](docs/NON_GOALS.md)

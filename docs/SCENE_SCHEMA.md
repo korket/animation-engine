@@ -139,6 +139,14 @@ targets/anchors, cycles, or visibility mismatches before any render starts.
 Full field and evaluation semantics are in [CHARACTERS.md](CHARACTERS.md).
 Earlier version-1 scenes require no migration and retain identical outputs.
 
+## Milestone 5: cognitive components, charts, and labels
+
+Additive `memoryOrb`, `thoughtBubble`, `contextBubble`, `label`, and `barChart`
+nodes require a theme and explicit bounds. Each retains common timing, positioning,
+transforms, and attachment fields. `bar.<id>` anchors follow chart reveal geometry.
+The exact fields, validation limits, text rules, and memory states are defined in
+[COGNITIVE_CHARTS.md](COGNITIVE_CHARTS.md). Earlier scenes need no migration.
+
 ## Future schema documentation
 
 When populated, document:

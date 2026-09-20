@@ -35,5 +35,9 @@ coordinates. Stroke margins are retained inside the viewport. These proportions
 and artwork remain review candidates; technical render verification does not
 approve them as channel identity. See [CHARACTERS.md](CHARACTERS.md).
 
-Handoff §14's typography, arrows, bubbles, charts, and universal spacing/safe-area
-rules remain with their owning milestones and visual review.
+Milestone 5 proposes rounded thought bubbles, double-outline context bubbles,
+translucent memory halos, zero-baseline bar charts, and local Roboto Mono labels.
+Primary/accent distinguish bars; secondary marks annotations and retrieval.
+These are functional visual candidates, not approved typography or branding.
+Handoff §14's arrows and universal spacing/safe-area rules remain with their owning
+milestones and visual review.

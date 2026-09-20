@@ -105,6 +105,19 @@ resolves themes and attachment graphs, and emits the existing typed SVG shapes.
 The renderer needs no character-specific business logic. Resource manifests record
 character identity/version/provenance alongside pinned prop assets and theme.
 
+## Milestone 5 cognitive visuals and charts
+
+No workspace is added. Scene-schema owns explicit cognitive/chart input contracts;
+engine resolves bounded typography, memory states, chart geometry, and animated
+bar anchors. Animation supplies numeric countUp. Renderer adds only SVG text and
+a local font-loading render gate, keeping state and chart calculations pure.
+
+This additive interface is justified by structured-data-driven components in M5.
+Fontsource Roboto Mono is the sole new external dependency: a pinned WOFF2 and
+license replace dependence on host-installed fonts. Resource manifests record it.
+Charts require authored source captions; neither validation nor rendering asserts
+that a research citation is true. See [COGNITIVE_CHARTS.md](COGNITIVE_CHARTS.md).
+
 Keep the following invariants visible:
 
 - AI plans; deterministic code renders.

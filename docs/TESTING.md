@@ -170,6 +170,34 @@ and sought to frames 18 and 90 with no error overlay. No external dependencies w
 added or upgraded. Windows/Ubuntu CI includes the character suite; Linux execution
 remains pending for the host limitation recorded above.
 
+## Milestone 5 verification
+
+`pnpm test:cognitive` renders the four-second cognitive/chart fixture and changed
+data, reduced-motion, and repeated variants. Independent pixel expectations check
+axes, bar heights, highlighting, animated anchors, and every memory state. Text-ink
+regions guard against missing font/text output; unit tests assert exact label/value
+content and overflow failures. Selected repeated PNGs must match exactly on one
+host. Actual H.264 codec, dimensions, frame rate, duration, and frame count are checked.
+The changed JSON is reloaded from a path with spaces. Artifacts and the success-only
+verification report go to `out/cognitive/`.
+
+Unit tests also cover decimal precision, invalid provenance/IDs/annotation targets,
+named easing, local timing, hidden-to-fading behavior, deterministic seeks, input
+immutability, and reduced-motion endpoints. Text is deliberately ASCII-only with a
+pinned local font. Inspect the PNGs and play the MP4 before visual acceptance; pixel
+checks alone do not establish legibility or approve branding.
+
+### Cognitive verification record — 2026-09-20
+
+Windows: frozen-lockfile install, 360 unit tests, full `pnpm verify`, dashboard
+startup, and all six render suites passed. The new suite checked four real MP4s,
+all five memory states, changed chart data, reduced motion, and identical repeated
+PNG pixels. Main, hidden/retrieved, and changed-data PNGs were inspected visually.
+The main MP4 completed local browser playback at rate 1 without a media error.
+Only Fontsource Roboto Mono 5.3.0 was added; existing dependency pins are unchanged.
+CI includes the new suite on both platforms; Linux execution remains pending for
+the host limitation recorded above. Text remains ASCII-only and branding unapproved.
+
 ## Regression principle
 
 Tests document supported behavior and protect the codebase from regressions.

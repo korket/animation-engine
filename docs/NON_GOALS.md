@@ -31,6 +31,11 @@ It does not add IK/bones, lip sync, arbitrary hand-to-handle solving, a mascot,
 charts, cognitive components, persistence, or dashboard editing. Artwork remains
 a visual review candidate.
 
+Milestone 5 adds cognitive states, bubbles, bounded ASCII text, and single-series
+nonnegative bar charts. It does not add a psychological model, invented research,
+arbitrary SVG/text, rich typography, data fetching, statistical analysis, or the
+Milestone 6 custom scene API/MemoryRooms scene. Production branding remains pending.
+
 The wider v1 exclusions remain authoritative in
 [the handoff](ENGINEERING_HANDOFF.md#62-explicit-v1-non-goals). In particular, do
 not add a general video editor, generative video, final TTS, or cloud render farm.

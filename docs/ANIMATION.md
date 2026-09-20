@@ -31,7 +31,9 @@ The three camera effects are cameraPan, cameraPush (also pull-out), and cameraFo
 Every primitive, including stagger, has focused automated tests.
 
 The handoff's approximately twenty-primitive target is before full production.
-`countUp` and `drawPath` remain deferred until their text/path capabilities.
+Milestone 5 adds pure `countUp(from, to, progress)` for chart values. It requires
+finite endpoints and progress in [0,1]; the chart supplies frame-based named easing.
+`drawPath` remains deferred until the path capability is needed.
 Milestone 4 adds discrete `expressionSwap` character actions, documented in
 [CHARACTERS.md](CHARACTERS.md). They use node-local action timing, not transform
 clips or eased interpolation. The seventeen Milestone 3 primitives are unchanged.

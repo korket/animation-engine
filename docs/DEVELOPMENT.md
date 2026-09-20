@@ -162,6 +162,25 @@ and a repeated copy. [CHARACTERS.md](CHARACTERS.md) defines authored actions and
 attachment semantics. No browser timers, external artwork, or new external
 dependencies are required.
 
+## Cognitive visuals and charts
+
+```text
+pnpm render:scene tests/fixtures/cognitive-v1.json out/cognitive
+pnpm test:cognitive
+```
+
+Studio includes `Cognitive`. The four-second proof combines all five memory states,
+thought/context bubbles, a labeled synthetic chart, an annotation, and a marker
+attached to an animated bar. The verifier also exports changed-data, reduced-motion,
+and repeated copies. See [COGNITIVE_CHARTS.md](COGNITIVE_CHARTS.md).
+
+The renderer now bundles pinned Fontsource Roboto Mono 5.3.0, waits for the local
+font before capturing frames, and fails on loading errors. No system font or CDN
+is required. Unsupported glyphs and text overflow fail early; enlarge the declared
+bounds or shorten the authored label instead of relying on clipping.
+
+Run render suites and builds sequentially: they share `.cache/remotion`.
+
 ## Engineering procedure
 
 This document defines how engineering changes should be approached across the repository.
