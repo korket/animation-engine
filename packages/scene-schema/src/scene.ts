@@ -1,11 +1,15 @@
 import { fail, number, object, text } from './validation.ts';
 import { timeToFrames } from './timing.ts';
+import { parseLayout, parsePosition } from './layout.ts';
+import type { Position, Layout } from './layout.ts';
+import { parseAnimations, parseCamera } from './choreography.ts';
+import type { AnimationClip, CameraClip } from './choreography.ts';
+export type { Position } from './layout.ts';
 
 /** Literal colors for basic SVG geometry; semantic asset styling arrives separately. */
 export type Color = `#${string}`;
 export type Paint = Color | `role:${string}`;
 export type ThemeReference = Readonly<{ id: string; version: string }>;
-export type Position = 'center' | Readonly<{ x: number; y: number }>;
 
 type NodeBase = Readonly<{
   id: string;
@@ -21,6 +25,7 @@ export type SceneNode = NodeBase &
         width: number;
         height: number;
         children: readonly SceneNode[];
+        layout?: Layout;
       }>
     | Readonly<{ type: 'circle'; radius: number; fill: Paint }>
     | Readonly<{ type: 'rect'; width: number; height: number; fill: Paint }>
@@ -46,6 +51,10 @@ export type Scene = Readonly<{
   background: Paint;
   theme?: ThemeReference;
   nodes: readonly SceneNode[];
+  layout?: Layout;
+  animations?: readonly AnimationClip[];
+  camera?: readonly CameraClip[];
+  motionMode?: 'full' | 'reduced';
 }>;
 
 function color(input: unknown, path: string, themed: boolean): Paint {
@@ -65,15 +74,6 @@ function positive(input: unknown, path: string): number {
   return result;
 }
 
-function position(input: unknown, path: string): Position {
-  if (input === 'center') return input;
-  const value = object(input, path, ['x', 'y']);
-  return {
-    x: number(value.x, `${path}.x`, false, -Number.MAX_VALUE),
-    y: number(value.y, `${path}.y`, false, -Number.MAX_VALUE),
-  };
-}
-
 export function parseScene(input: unknown): Scene {
   const scene = object(input, 'scene', [
     'schemaVersion',
@@ -88,6 +88,10 @@ export function parseScene(input: unknown): Scene {
     'background',
     'nodes',
     'theme',
+    'layout',
+    'animations',
+    'camera',
+    'motionMode',
   ]);
   if (scene.schemaVersion !== 1)
     fail('scene.schemaVersion', 'only version 1 is supported');
@@ -129,6 +133,7 @@ export function parseScene(input: unknown): Scene {
         'children',
         'assetId',
         'assetVersion',
+        'layout',
       ]);
       const id = text(node.id, `${p}.id`);
       if (ids.has(id)) fail(`${p}.id`, `duplicate node ID "${id}"`);
@@ -150,7 +155,7 @@ export function parseScene(input: unknown): Scene {
         id,
         start,
         duration,
-        position: position(node.position, `${p}.position`),
+        position: parsePosition(node.position, `${p}.position`),
       };
       switch (node.type) {
         case 'circle':
@@ -171,13 +176,16 @@ export function parseScene(input: unknown): Scene {
             fill: color(node.fill, `${p}.fill`, !!theme),
           };
         case 'group':
-          object(node, p, [...common, 'width', 'height', 'children']);
+          object(node, p, [...common, 'width', 'height', 'children', 'layout']);
           return {
             ...base,
             type: 'group',
             width: positive(node.width, `${p}.width`),
             height: positive(node.height, `${p}.height`),
             children: nodes(node.children, `${p}.children`, length),
+            ...(node.layout !== undefined
+              ? { layout: parseLayout(node.layout, `${p}.layout`) }
+              : {}),
           };
         case 'asset': {
           object(node, p, [
@@ -211,6 +219,12 @@ export function parseScene(input: unknown): Scene {
 
   const importance = scene.importance;
   if (
+    scene.motionMode !== undefined &&
+    scene.motionMode !== 'full' &&
+    scene.motionMode !== 'reduced'
+  )
+    fail('scene.motionMode', 'expected full or reduced');
+  if (
     importance !== 'low' &&
     importance !== 'medium' &&
     importance !== 'high'
@@ -230,5 +244,15 @@ export function parseScene(input: unknown): Scene {
     background: color(scene.background, 'scene.background', !!theme),
     ...(theme ? { theme } : {}),
     nodes: nodes(scene.nodes, 'scene.nodes', totalFrames),
+    ...(scene.layout !== undefined
+      ? { layout: parseLayout(scene.layout, 'scene.layout') }
+      : {}),
+    ...(scene.animations !== undefined
+      ? { animations: parseAnimations(scene.animations, fps, totalFrames) }
+      : {}),
+    ...(scene.camera !== undefined
+      ? { camera: parseCamera(scene.camera, fps, totalFrames) }
+      : {}),
+    ...(scene.motionMode !== undefined ? { motionMode: scene.motionMode } : {}),
   };
 }

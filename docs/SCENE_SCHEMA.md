@@ -114,6 +114,21 @@ It does not alter version 1 field meanings or require migration. Older engines
 correctly reject the new fields/node kind. Existing smoke data stays independent.
 `tests/fixtures/assets-v1.json` demonstrates two pinned phone revisions and a book.
 
+## Milestone 3: layout and motion
+
+Version 1 adds optional `layout`, `animations`, `camera`, and `motionMode` fields.
+Groups may also specify their own `layout`. Position accepts named center regions,
+layout slots, and sibling-relative placement alongside the original center/raw
+coordinates. The full contracts, slot table, effect parameters, composition order,
+camera endpoint behavior, and reduced-motion policy are in [ANIMATION.md](ANIMATION.md).
+
+The original static scenes and all earlier fixture outputs retain their meanings.
+Animation data is validated before rendering and references resolve against node
+IDs. Unknown effects/curves/targets, cycles, subframe timing, overlapping camera
+clips, and clips outside target visibility fail. An empty animation/camera array
+means no authored clips. Older engines reject these new fields rather than silently
+ignoring motion. No automatic migration or default animation is introduced.
+
 ## Future schema documentation
 
 When populated, document:

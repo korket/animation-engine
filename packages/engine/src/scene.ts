@@ -7,11 +7,21 @@ import {
   styleArtwork,
 } from '@animation-engine/assets';
 import type { AssetLibrary, StyledShape } from '@animation-engine/assets';
+import { resolvePositions, nodeSize } from './layout.ts';
+import { compileChoreography, evaluateChoreography } from './choreography.ts';
+import type {
+  Choreography,
+  NodeFrame,
+  Matrix,
+  Presentation,
+} from './choreography.ts';
+import type { Layout } from '@animation-engine/scene-schema';
 
 type ElementBase = Readonly<{
   id: string;
   startFrame: number;
   endFrame: number;
+  presentation?: Presentation;
 }>;
 export type SceneElement = ElementBase &
   (
@@ -50,6 +60,7 @@ export type CompiledScene = Readonly<{
   durationInFrames: number;
   background: Color;
   elements: readonly SceneElement[];
+  choreography?: Choreography;
   resources?: Readonly<{
     theme: { id: string; version: string; styleVersion: string };
     assets: readonly {
@@ -66,6 +77,7 @@ export type SceneFrame = Readonly<{
   height: number;
   background: Color;
   elements: readonly SceneElement[];
+  camera?: Matrix;
 }>;
 
 /** Validate and compile a tree into an ordered display list in canvas coordinates. */
@@ -75,6 +87,7 @@ export function compileScene(
 ): CompiledScene {
   const scene = parseScene(input);
   const elements: SceneElement[] = [];
+  const nodeFrames: NodeFrame[] = [];
   if (scene.theme && !library)
     throw new Error('scene.theme: asset library is required');
   const theme =
@@ -103,20 +116,24 @@ export function compileScene(
       width: number;
       height: number;
       startFrame: number;
+      id?: string;
+      layout?: Layout;
     },
   ) {
+    const positions = resolvePositions(
+      nodes,
+      parent.width,
+      parent.height,
+      parent.layout,
+    );
     for (const node of nodes) {
-      const cx =
-        parent.x +
-        (node.position === 'center' ? parent.width / 2 : node.position.x);
-      const cy =
-        parent.y +
-        (node.position === 'center' ? parent.height / 2 : node.position.y);
+      const position = positions.get(node.id)!;
+      const cx = parent.x + position.x,
+        cy = parent.y + position.y;
       const startFrame =
         parent.startFrame + timeToFrames(node.start, scene.fps);
       const endFrame = startFrame + timeToFrames(node.duration, scene.fps);
-      const width = node.type === 'circle' ? node.radius * 2 : node.width;
-      const height = node.type === 'circle' ? node.radius * 2 : node.height;
+      const { width, height } = nodeSize(node);
       const x = cx - width / 2;
       const y = cy - height / 2;
       if (
@@ -128,8 +145,27 @@ export function compileScene(
           `node "${node.id}": resolved geometry exceeds the finite coordinate range`,
         );
       }
+      nodeFrames.push({
+        id: node.id,
+        ...(parent.id ? { parentId: parent.id } : {}),
+        group: node.type === 'group',
+        cx,
+        cy,
+        width,
+        height,
+        startFrame,
+        endFrame,
+      });
       if (node.type === 'group') {
-        visit(node.children, { x, y, width, height, startFrame });
+        visit(node.children, {
+          x,
+          y,
+          width,
+          height,
+          startFrame,
+          id: node.id,
+          ...(node.layout ? { layout: node.layout } : {}),
+        });
       } else if (node.type === 'asset') {
         if (!library || !theme)
           throw new Error(`asset ${node.id}: theme and library are required`);
@@ -190,6 +226,7 @@ export function compileScene(
     width: scene.width,
     height: scene.height,
     startFrame: 0,
+    ...(scene.layout ? { layout: scene.layout } : {}),
   });
   return {
     id: scene.id,
@@ -199,6 +236,9 @@ export function compileScene(
     durationInFrames: timeToFrames(scene.duration, scene.fps),
     background: paint(scene.background),
     elements,
+    ...(scene.animations || scene.camera || scene.motionMode
+      ? { choreography: compileChoreography(scene, nodeFrames, paint) }
+      : {}),
     ...(theme
       ? {
           resources: {
@@ -225,12 +265,22 @@ export function evaluateScene(scene: CompiledScene, frame: number): SceneFrame {
       `frame: expected an integer in [0, ${scene.durationInFrames})`,
     );
   }
+  const motion = scene.choreography
+    ? evaluateChoreography(scene.choreography, frame, scene.width, scene.height)
+    : undefined;
+  const elements = scene.elements.filter(
+    (element) => frame >= element.startFrame && frame < element.endFrame,
+  );
   return {
     width: scene.width,
     height: scene.height,
     background: scene.background,
-    elements: scene.elements.filter(
-      (element) => frame >= element.startFrame && frame < element.endFrame,
-    ),
+    elements: motion
+      ? elements.map((element) => ({
+          ...element,
+          presentation: motion.state(element.id),
+        }))
+      : elements,
+    ...(motion ? { camera: motion.camera } : {}),
   };
 }

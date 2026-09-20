@@ -29,6 +29,9 @@ export type {
   ThemeReference,
 } from './scene.ts';
 export { timeToFrames } from './timing.ts';
+export { layoutNames } from './layout.ts';
+export type { Layout } from './layout.ts';
+export type { AnimationClip, CameraClip } from './choreography.ts';
 
 export function parseSmokeScene(input: unknown): SmokeScene {
   const scene = object(input, 'scene', [

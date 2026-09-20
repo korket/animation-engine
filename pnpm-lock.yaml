@@ -111,6 +111,9 @@ importers:
 
   packages/engine:
     dependencies:
+      '@animation-engine/animation':
+        specifier: workspace:*
+        version: link:../animation
       '@animation-engine/assets':
         specifier: workspace:*
         version: link:../assets
@@ -118,7 +121,11 @@ importers:
         specifier: workspace:*
         version: link:../scene-schema
 
-  packages/scene-schema: {}
+  packages/scene-schema:
+    dependencies:
+      '@animation-engine/animation':
+        specifier: workspace:*
+        version: link:../animation
 
 packages:
 

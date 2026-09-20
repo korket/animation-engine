@@ -53,7 +53,7 @@ describe('version 1 scene contract', () => {
     ['duration', Infinity],
     ['background', 'url(remote.svg)'],
     ['nodes', null],
-    ['animations', []],
+    ['animations', {}],
   ])('rejects invalid scene.%s', (key, value) => {
     expect(() => parseScene({ ...fixture, [key]: value })).toThrow(
       `scene.${key}`,

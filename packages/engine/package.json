@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@animation-engine/animation": "workspace:*",
     "@animation-engine/assets": "workspace:*",
     "@animation-engine/scene-schema": "workspace:*"
   }
