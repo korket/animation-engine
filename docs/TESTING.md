@@ -140,6 +140,36 @@ primitive-grid, and reduced-motion renders passed their pixel/metadata checks.
 No external dependencies were added or upgraded. Linux CI includes the new suite
 but remains unverified for the host limitation recorded above.
 
+## Milestone 4 verification
+
+`pnpm test:characters` renders the four-second acting proof, a one-second pose grid,
+a reduced-motion variant, and a repeat of the acting proof. Reference pixels check
+the attached phone at moving hand positions, shirts for both identities, the exact
+expression-swap boundary, and all four walk drawings. Repeated renders must produce
+identical selected PNG pixels; H.264 bytes are not compared. Every MP4 is checked for
+codec, dimensions, duration, frame rate, and packet count. The pose-grid JSON is
+written/reloaded through the normal loader using a path with spaces.
+
+Unit tests cover all ten poses and eight expressions, modular face/body separation,
+walk boundaries, pose-cycle reset, deterministic seeks, target rotation/scale and
+ancestor transforms, attached groups/chains, visibility, cycles, missing anchors,
+and invalid timing/identity/theme data. CI runs this suite alongside earlier renders
+on Windows and Ubuntu. Inspect the acting proof and pose grid before visual acceptance.
+The grid is row-major in the pose order listed in `CHARACTERS.md`; expressions cycle
+through that document's expression order. Visual verification does not approve branding.
+
+### Character verification record — 2026-09-20
+
+Windows: frozen-lockfile installation, 320 unit tests, formatting/lint/type checks,
+both builds, and all five render suites passed locally. The character suite checked
+four actual MP4s and identical reference pixels across repeated acting renders.
+The pose grid and acting PNGs were visually inspected. Browser playback completed
+the acting MP4 at rate 1 without a media error; screenshot capture in the browser
+timed out, so visual inspection used the rendered PNGs. Studio mounted Characters
+and sought to frames 18 and 90 with no error overlay. No external dependencies were
+added or upgraded. Windows/Ubuntu CI includes the character suite; Linux execution
+remains pending for the host limitation recorded above.
+
 ## Regression principle
 
 Tests document supported behavior and protect the codebase from regressions.

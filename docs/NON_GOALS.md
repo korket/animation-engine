@@ -25,6 +25,12 @@ swaps, character anchors, 3D cameras, or a timeline editor. The broader primitiv
 target remains a before-production requirement, not a reason to build later
 character/chart capabilities prematurely.
 
+Milestone 4 adds two versioned human identities, ten authored poses, eight modular
+expressions, a four-frame walk, expressionSwap, and moving sibling attachments.
+It does not add IK/bones, lip sync, arbitrary hand-to-handle solving, a mascot,
+charts, cognitive components, persistence, or dashboard editing. Artwork remains
+a visual review candidate.
+
 The wider v1 exclusions remain authoritative in
 [the handoff](ENGINEERING_HANDOFF.md#62-explicit-v1-non-goals). In particular, do
 not add a general video editor, generative video, final TTS, or cloud render farm.

@@ -83,3 +83,14 @@ jobs:
           path: workspace with spaces/out/motion/
           if-no-files-found: warn
           retention-days: 7
+      - name: Verify character acting and attached props
+        working-directory: workspace with spaces
+        run: pnpm test:characters
+      - name: Upload character render evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: characters-${{ matrix.os }}
+          path: workspace with spaces/out/characters/
+          if-no-files-found: warn
+          retention-days: 7

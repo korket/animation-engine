@@ -148,6 +148,20 @@ the host OS motion preference. See [ANIMATION.md](ANIMATION.md) for contracts,
 named layout slots, effects, timing, and camera behavior. No new external motion
 library is needed.
 
+## Characters
+
+```text
+pnpm render:scene tests/fixtures/characters-v1.json out/characters
+pnpm test:characters
+```
+
+Studio includes `Characters`. The four-second proof walks with a phone attached
+to a moving hand, stops in holding-phone pose, and changes expressions beside a
+secondary human. The verifier also renders all poses/expressions, reduced motion,
+and a repeated copy. [CHARACTERS.md](CHARACTERS.md) defines authored actions and
+attachment semantics. No browser timers, external artwork, or new external
+dependencies are required.
+
 ## Engineering procedure
 
 This document defines how engineering changes should be approached across the repository.

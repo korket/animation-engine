@@ -42,3 +42,9 @@ hashes plus the theme identity/version/style contract. Successful local renders
 write these to `scene-resources.json`, keyed by scene ID. References, including
 assets on later frames, resolve before rendering; missing/incompatible content
 fails instead of being substituted. Episode aggregation is deferred to persistence.
+
+Milestone 4 adds a separate source-controlled character library. Character nodes pin
+identity/version and emit original authored geometry through the same typed shape
+and theme path. Their provenance/usage records are included in `scene-resources.json`.
+They are not filename-based SVG catalog entries; pose/face/anchor evaluation belongs
+to `characters` and the engine. Existing prop catalog checksums remain unchanged.

@@ -28,8 +28,12 @@ Review checklist: clear silhouettes, consistent palette, balanced outlines,
 legible small props, and no cropped strokes. The fixture keeps generous margins;
 it does not establish a layout engine or universal spacing rule.
 
-Handoff §14 also calls for spacing/safe areas, typography, character/head/eye/mouth
-proportions, arrows, bubbles, and charts. Those remain explicitly undecided until
-their owning milestones and visual review; this milestone implements only the
-theme and prop rules it can exercise. Serious character animation must not start
-from unreviewed proportions.
+Milestone 4 proposes a 100×200 human viewBox, a 50-unit head diameter, a 34-unit
+torso width, and separate eyes/brows/mouth. Surface fills the head/hands; primary
+and secondary distinguish shirts. Four authored walk drawings use the same face
+coordinates. Stroke margins are retained inside the viewport. These proportions
+and artwork remain review candidates; technical render verification does not
+approve them as channel identity. See [CHARACTERS.md](CHARACTERS.md).
+
+Handoff §14's typography, arrows, bubbles, charts, and universal spacing/safe-area
+rules remain with their owning milestones and visual review.

@@ -95,6 +95,16 @@ from that immutable data without playback state. Group transforms use affine mat
 around base centers; relative placement is resolved before animation. This separation
 keeps random-access rendering and camera-follow behavior reproducible.
 
+## Milestone 4 characters
+
+The seventh active workspace, `characters`, owns versioned authored geometry,
+pose/expression vocabulary, modular facial layers, walk sampling, and local anchors.
+It uses asset geometry types without depending on React, Remotion, or the engine.
+Schema validates authored actions; engine converts node-local seconds to frames,
+resolves themes and attachment graphs, and emits the existing typed SVG shapes.
+The renderer needs no character-specific business logic. Resource manifests record
+character identity/version/provenance alongside pinned prop assets and theme.
+
 Keep the following invariants visible:
 
 - AI plans; deterministic code renders.
