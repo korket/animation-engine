@@ -23,6 +23,7 @@
     "test:assets": "pnpm --filter @animation-engine/renderer test:assets",
     "test:motion": "pnpm --filter @animation-engine/renderer test:motion",
     "test:characters": "pnpm --filter @animation-engine/renderer test:characters",
+    "test:cognitive": "pnpm --filter @animation-engine/renderer test:cognitive",
     "test:dashboard": "pnpm --filter @animation-engine/dashboard test:dashboard",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },

@@ -13,7 +13,8 @@
     "test:scene": "tsx scripts/verify-scene.ts",
     "test:assets": "tsx scripts/verify-assets.ts",
     "test:motion": "tsx scripts/verify-motion.ts",
-    "test:characters": "tsx scripts/verify-characters.ts"
+    "test:characters": "tsx scripts/verify-characters.ts",
+    "test:cognitive": "tsx scripts/verify-cognitive.ts"
   },
   "dependencies": {
     "@animation-engine/assets": "workspace:*",
