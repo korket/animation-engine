@@ -109,6 +109,12 @@ importers:
         specifier: 0.9.12
         version: 0.9.12
 
+  packages/characters:
+    dependencies:
+      '@animation-engine/assets':
+        specifier: workspace:*
+        version: link:../assets
+
   packages/engine:
     dependencies:
       '@animation-engine/animation':
@@ -117,6 +123,9 @@ importers:
       '@animation-engine/assets':
         specifier: workspace:*
         version: link:../assets
+      '@animation-engine/characters':
+        specifier: workspace:*
+        version: link:../characters
       '@animation-engine/scene-schema':
         specifier: workspace:*
         version: link:../scene-schema
@@ -126,6 +135,9 @@ importers:
       '@animation-engine/animation':
         specifier: workspace:*
         version: link:../animation
+      '@animation-engine/characters':
+        specifier: workspace:*
+        version: link:../characters
 
 packages:
 

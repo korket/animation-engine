@@ -19,7 +19,9 @@ export default [
     },
   },
   {
-    files: ['packages/{engine,scene-schema,assets,animation}/**/*.ts'],
+    files: [
+      'packages/{engine,scene-schema,assets,animation,characters}/**/*.ts',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',

@@ -5,6 +5,7 @@
   "type": "module",
   "exports": "./src/index.ts",
   "dependencies": {
+    "@animation-engine/characters": "workspace:*",
     "@animation-engine/animation": "workspace:*"
   },
   "scripts": {
