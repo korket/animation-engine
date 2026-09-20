@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "id": "character-proof",
+  "purpose": "Walk with an anchored phone, stop, and react beside a secondary human",
+  "emotion": "curious",
+  "importance": "medium",
+  "width": 640,
+  "height": 360,
+  "fps": 30,
+  "duration": 4,
+  "background": "role:background",
+  "theme": { "id": "studio-proof", "version": "1" },
+  "nodes": [
+    {
+      "id": "hero",
+      "type": "character",
+      "characterId": "protagonist",
+      "characterVersion": "1",
+      "width": 100,
+      "height": 200,
+      "position": { "x": 160, "y": 200 },
+      "start": 0,
+      "duration": 4,
+      "pose": "walking",
+      "expression": "neutral",
+      "walkStepDuration": 0.2,
+      "actions": [
+        { "type": "expressionSwap", "at": 1, "value": "happy" },
+        { "type": "pose", "at": 2, "value": "holding-phone" },
+        { "type": "expressionSwap", "at": 2, "value": "confused" },
+        { "type": "expressionSwap", "at": 3, "value": "surprised" }
+      ]
+    },
+    {
+      "id": "friend",
+      "type": "character",
+      "characterId": "secondary-human",
+      "characterVersion": "1",
+      "width": 100,
+      "height": 200,
+      "position": { "x": 480, "y": 200 },
+      "start": 0,
+      "duration": 4,
+      "pose": "pointing",
+      "expression": "happy",
+      "walkStepDuration": 0.2,
+      "actions": []
+    },
+    {
+      "id": "phone",
+      "type": "asset",
+      "assetId": "prop_phone",
+      "assetVersion": "1",
+      "width": 24,
+      "height": 40,
+      "position": "center",
+      "start": 0,
+      "duration": 4,
+      "attachment": {
+        "target": "hero",
+        "anchor": "rightHand",
+        "offset": { "x": 0, "y": -14 }
+      }
+    }
+  ],
+  "animations": [
+    {
+      "target": "hero",
+      "start": 0,
+      "duration": 2,
+      "easing": "linear",
+      "effect": {
+        "type": "followPath",
+        "points": [
+          { "x": 0, "y": 0 },
+          { "x": 120, "y": 0 }
+        ]
+      }
+    }
+  ]
+}

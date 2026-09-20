@@ -8,6 +8,7 @@ import { SceneComposition } from './SceneComposition';
 import { builtinLibrary } from '@animation-engine/assets/builtin';
 import assetFixture from '../../../tests/fixtures/assets-v1.json';
 import motionFixture from '../../../tests/fixtures/motion-v1.json';
+import characterFixture from '../../../tests/fixtures/characters-v1.json';
 
 const scene = parseSmokeScene(fixture);
 const coreScene = parseScene(coreFixture);
@@ -16,10 +17,35 @@ const assetScene = parseScene(assetFixture);
 const assetCompiled = compileScene(assetScene, builtinLibrary);
 const motionScene = parseScene(motionFixture);
 const motionCompiled = compileScene(motionScene, builtinLibrary);
+const characterScene = parseScene(characterFixture);
+const characterCompiled = compileScene(characterScene, builtinLibrary);
 
 export function RemotionRoot() {
   return (
     <>
+      <Composition
+        id="Characters"
+        component={SceneComposition}
+        width={characterCompiled.width}
+        height={characterCompiled.height}
+        fps={characterCompiled.fps}
+        durationInFrames={characterCompiled.durationInFrames}
+        defaultProps={{ scene: characterScene, library: builtinLibrary }}
+        calculateMetadata={({ props }) => {
+          const scene = parseScene(props.scene),
+            compiled = compileScene(scene, props.library);
+          return {
+            width: compiled.width,
+            height: compiled.height,
+            fps: compiled.fps,
+            durationInFrames: compiled.durationInFrames,
+            props: {
+              scene,
+              ...(props.library ? { library: props.library } : {}),
+            },
+          };
+        }}
+      />
       <Composition
         id="Smoke"
         component={SmokeComposition}
