@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "id": "layout-motion-proof",
+  "purpose": "Demonstrate semantic placement, object motion, and controlled camera framing",
+  "emotion": "curiosity",
+  "importance": "medium",
+  "width": 640,
+  "height": 360,
+  "fps": 30,
+  "duration": 4,
+  "theme": { "id": "studio-proof", "version": "1" },
+  "background": "role:background",
+  "layout": "two-column",
+  "nodes": [
+    {
+      "id": "orb",
+      "type": "circle",
+      "radius": 25,
+      "fill": "role:accent",
+      "position": { "slot": "left" },
+      "start": 0,
+      "duration": 4
+    },
+    {
+      "id": "book",
+      "type": "asset",
+      "assetId": "prop_book",
+      "assetVersion": "1",
+      "width": 100,
+      "height": 160,
+      "position": { "slot": "right" },
+      "start": 0,
+      "duration": 4
+    },
+    {
+      "id": "marker",
+      "type": "rect",
+      "width": 40,
+      "height": 12,
+      "fill": "role:primary",
+      "position": "bottom-center",
+      "start": 0,
+      "duration": 4
+    }
+  ],
+  "animations": [
+    {
+      "target": "orb",
+      "start": 0,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": { "type": "fadeIn" }
+    },
+    {
+      "target": "orb",
+      "start": 0,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": { "type": "slideIn", "offset": { "x": -40, "y": 0 } }
+    },
+    {
+      "target": "orb",
+      "start": 0.5,
+      "duration": 1,
+      "easing": "dramatic",
+      "effect": {
+        "type": "followPath",
+        "points": [
+          { "x": 0, "y": 0 },
+          { "x": 40, "y": -30 },
+          { "x": 80, "y": 0 }
+        ]
+      }
+    },
+    {
+      "target": "book",
+      "start": 0,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": { "type": "scaleIn", "from": 0.95 }
+    },
+    {
+      "target": "book",
+      "start": 1,
+      "duration": 1,
+      "easing": "linear",
+      "effect": { "type": "highlight", "color": "role:accent", "width": 4 }
+    },
+    {
+      "target": "marker",
+      "start": 0,
+      "duration": 0.5,
+      "easing": "snappy",
+      "effect": { "type": "pop", "amount": 0.1 }
+    },
+    {
+      "target": "marker",
+      "start": 0.5,
+      "duration": 1,
+      "easing": "soft",
+      "effect": { "type": "rotate", "from": 0, "to": 90 }
+    }
+  ],
+  "camera": [
+    {
+      "start": 2,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": {
+        "type": "cameraPan",
+        "from": { "x": 320, "y": 180 },
+        "to": { "x": 300, "y": 180 },
+        "zoom": 1
+      }
+    },
+    {
+      "start": 2.5,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": {
+        "type": "cameraPush",
+        "center": { "x": 300, "y": 180 },
+        "fromZoom": 1,
+        "toZoom": 1.1
+      }
+    },
+    {
+      "start": 3,
+      "duration": 0.5,
+      "easing": "soft",
+      "effect": {
+        "type": "cameraFollow",
+        "target": "orb",
+        "from": { "x": 300, "y": 180 },
+        "offset": { "x": 0, "y": 0 },
+        "zoom": 1.1
+      }
+    }
+  ]
+}

@@ -64,44 +64,87 @@ export function SceneComposition({
         height={resolved.height}
         fill={resolved.background}
       />
-      {resolved.elements.map((element) =>
-        element.type === 'circle' ? (
-          <circle
-            key={element.id}
-            data-node-id={element.id}
-            cx={element.cx}
-            cy={element.cy}
-            r={element.radius}
-            fill={element.fill}
-          />
-        ) : element.type === 'asset' ? (
-          <svg
-            key={element.id}
-            data-node-id={element.id}
-            x={element.x}
-            y={element.y}
-            width={element.width}
-            height={element.height}
-            viewBox={`0 0 ${element.viewBoxWidth} ${element.viewBoxHeight}`}
-            preserveAspectRatio="xMidYMid meet"
-            overflow="hidden"
-          >
-            {element.shapes.map((shape, index) => (
-              <AssetShape key={index} shape={shape} />
-            ))}
-          </svg>
-        ) : (
-          <rect
-            key={element.id}
-            data-node-id={element.id}
-            x={element.x}
-            y={element.y}
-            width={element.width}
-            height={element.height}
-            fill={element.fill}
-          />
-        ),
-      )}
+      <g
+        transform={
+          resolved.camera ? `matrix(${resolved.camera.join(' ')})` : undefined
+        }
+      >
+        {resolved.elements.map((element) => {
+          const presentation = element.presentation;
+          const bounds =
+            element.type === 'circle'
+              ? {
+                  x: element.cx - element.radius,
+                  y: element.cy - element.radius,
+                  width: element.radius * 2,
+                  height: element.radius * 2,
+                }
+              : {
+                  x: element.x,
+                  y: element.y,
+                  width: element.width,
+                  height: element.height,
+                };
+          return (
+            <g
+              key={element.id}
+              transform={
+                presentation
+                  ? `matrix(${presentation.matrix.join(' ')})`
+                  : undefined
+              }
+              opacity={presentation?.opacity}
+            >
+              {element.type === 'circle' ? (
+                <circle
+                  key={element.id}
+                  data-node-id={element.id}
+                  cx={element.cx}
+                  cy={element.cy}
+                  r={element.radius}
+                  fill={element.fill}
+                />
+              ) : element.type === 'asset' ? (
+                <svg
+                  key={element.id}
+                  data-node-id={element.id}
+                  x={element.x}
+                  y={element.y}
+                  width={element.width}
+                  height={element.height}
+                  viewBox={`0 0 ${element.viewBoxWidth} ${element.viewBoxHeight}`}
+                  preserveAspectRatio="xMidYMid meet"
+                  overflow="hidden"
+                >
+                  {element.shapes.map((shape, index) => (
+                    <AssetShape key={index} shape={shape} />
+                  ))}
+                </svg>
+              ) : (
+                <rect
+                  key={element.id}
+                  data-node-id={element.id}
+                  x={element.x}
+                  y={element.y}
+                  width={element.width}
+                  height={element.height}
+                  fill={element.fill}
+                />
+              )}
+              {presentation?.highlights.map((highlight, index) => (
+                <rect
+                  key={index}
+                  {...bounds}
+                  fill="none"
+                  stroke={highlight.color}
+                  strokeWidth={highlight.width}
+                  opacity={highlight.opacity}
+                />
+              ))}
+            </g>
+          );
+        })}
+      </g>
     </svg>
   );
 }
