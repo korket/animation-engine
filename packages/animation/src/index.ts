@@ -390,3 +390,14 @@ export function staggerFrames(
     duration,
   }));
 }
+
+/** Numeric reveal for chart labels. Formatting remains the caller's responsibility. */
+export function countUp(from: number, to: number, p: number): number {
+  n(from, 'countUp.from');
+  n(to, 'countUp.to');
+  n(p, 'countUp.progress', 0, 1);
+  const value = mix(from, to, p);
+  if (!Number.isFinite(value))
+    throw new Error('countUp exceeded finite numeric range');
+  return value;
+}
