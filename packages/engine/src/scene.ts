@@ -6,7 +6,16 @@ import {
   resolvePaint,
   styleArtwork,
 } from '@animation-engine/assets';
-import type { AssetLibrary, StyledShape } from '@animation-engine/assets';
+import type {
+  AssetLibrary,
+  StyledShape,
+  Theme,
+} from '@animation-engine/assets';
+import {
+  evaluateCharacter,
+  characterProvenance,
+} from '@animation-engine/characters';
+import type { CharacterState } from '@animation-engine/characters';
 import { resolvePositions, nodeSize } from './layout.ts';
 import { compileChoreography, evaluateChoreography } from './choreography.ts';
 import type {
@@ -49,6 +58,7 @@ export type SceneElement = ElementBase &
         viewBoxWidth: number;
         viewBoxHeight: number;
         shapes: readonly StyledShape[];
+        character?: Readonly<{ state: CharacterState; theme: Theme }>;
       }>
   );
 
@@ -69,6 +79,12 @@ export type CompiledScene = Readonly<{
       version: string;
       sha256: string;
     }[];
+    characters?: readonly {
+      nodeId: string;
+      characterId: string;
+      version: string;
+      provenance: typeof characterProvenance;
+    }[];
   }>;
 }>;
 
@@ -88,6 +104,12 @@ export function compileScene(
   const scene = parseScene(input);
   const elements: SceneElement[] = [];
   const nodeFrames: NodeFrame[] = [];
+  const characters: {
+    nodeId: string;
+    characterId: string;
+    version: string;
+    provenance: typeof characterProvenance;
+  }[] = [];
   if (scene.theme && !library)
     throw new Error('scene.theme: asset library is required');
   const theme =
@@ -136,6 +158,20 @@ export function compileScene(
       const { width, height } = nodeSize(node);
       const x = cx - width / 2;
       const y = cy - height / 2;
+      const character: CharacterState | undefined =
+        node.type === 'character'
+          ? {
+              characterId: node.characterId,
+              characterVersion: node.characterVersion,
+              pose: node.pose,
+              expression: node.expression,
+              walkStepFrames: timeToFrames(node.walkStepDuration, scene.fps),
+              actions: node.actions.map((action) => ({
+                ...action,
+                atFrame: timeToFrames(action.at, scene.fps),
+              })),
+            }
+          : undefined;
       if (
         ![cx, cy, width, height, x, y, x + width, y + height].every(
           Number.isFinite,
@@ -146,6 +182,8 @@ export function compileScene(
         );
       }
       nodeFrames.push({
+        ...(node.attachment ? { attachment: node.attachment } : {}),
+        ...(character ? { character } : {}),
         id: node.id,
         ...(parent.id ? { parentId: parent.id } : {}),
         group: node.type === 'group',
@@ -165,6 +203,37 @@ export function compileScene(
           startFrame,
           id: node.id,
           ...(node.layout ? { layout: node.layout } : {}),
+        });
+      } else if (node.type === 'character') {
+        if (!theme || !character)
+          throw new Error(`character ${node.id}: theme required`);
+        if (theme.styleVersion !== characterProvenance.styleVersion)
+          throw new Error(
+            `character ${node.id}: incompatible theme style version`,
+          );
+        elements.push({
+          id: node.id,
+          type: 'asset',
+          x,
+          y,
+          width,
+          height,
+          startFrame,
+          endFrame,
+          viewBoxWidth: 100,
+          viewBoxHeight: 200,
+          shapes: styleArtwork(
+            evaluateCharacter(character, 0, scene.motionMode === 'reduced')
+              .artwork,
+            theme,
+          ),
+          character: { state: character, theme },
+        });
+        characters.push({
+          nodeId: node.id,
+          characterId: character.characterId,
+          version: character.characterVersion,
+          provenance: characterProvenance,
         });
       } else if (node.type === 'asset') {
         if (!library || !theme)
@@ -236,7 +305,10 @@ export function compileScene(
     durationInFrames: timeToFrames(scene.duration, scene.fps),
     background: paint(scene.background),
     elements,
-    ...(scene.animations || scene.camera || scene.motionMode
+    ...(scene.animations ||
+    scene.camera ||
+    scene.motionMode ||
+    nodeFrames.some((node) => node.attachment || node.character)
       ? { choreography: compileChoreography(scene, nodeFrames, paint) }
       : {}),
     ...(theme
@@ -248,6 +320,7 @@ export function compileScene(
               styleVersion: theme.styleVersion,
             },
             assets: usage,
+            ...(characters.length ? { characters } : {}),
           },
         }
       : {}),
@@ -278,6 +351,18 @@ export function evaluateScene(scene: CompiledScene, frame: number): SceneFrame {
     elements: motion
       ? elements.map((element) => ({
           ...element,
+          ...(element.type === 'asset' && element.character
+            ? {
+                shapes: styleArtwork(
+                  evaluateCharacter(
+                    element.character.state,
+                    frame - element.startFrame,
+                    scene.choreography?.reduced,
+                  ).artwork,
+                  element.character.theme,
+                ),
+              }
+            : {}),
           presentation: motion.state(element.id),
         }))
       : elements,

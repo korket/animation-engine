@@ -129,6 +129,16 @@ clips, and clips outside target visibility fail. An empty animation/camera array
 means no authored clips. Older engines reject these new fields rather than silently
 ignoring motion. No automatic migration or default animation is introduced.
 
+## Milestone 4: characters and attachments
+
+The additive `character` node requires an exact character ID/version, viewport
+width/height, pose, expression, walkStepDuration, and an actions array. A theme is
+required. Common node fields remain unchanged. Every node can optionally specify
+an attachment to a sibling's named anchor. Compiler validation rejects missing
+targets/anchors, cycles, or visibility mismatches before any render starts.
+Full field and evaluation semantics are in [CHARACTERS.md](CHARACTERS.md).
+Earlier version-1 scenes require no migration and retain identical outputs.
+
 ## Future schema documentation
 
 When populated, document:

@@ -93,3 +93,4 @@ export function parseSmokeScene(input: unknown): SmokeScene {
     fade: { startFrame, endFrame },
   };
 }
+export type { CharacterDefinition, Attachment } from './character.ts';

@@ -13,10 +13,18 @@ import type {
 } from '@animation-engine/animation';
 import { timeToFrames } from '@animation-engine/scene-schema';
 import type { Scene, Color, Paint } from '@animation-engine/scene-schema';
+import type { Attachment } from '@animation-engine/scene-schema';
+import {
+  evaluateCharacter,
+  characterAnchorNames,
+} from '@animation-engine/characters';
+import type { CharacterState } from '@animation-engine/characters';
 
 export type Matrix = readonly [number, number, number, number, number, number];
 const identity: Matrix = [1, 0, 0, 1, 0, 0];
 export type NodeFrame = Readonly<{
+  attachment?: Attachment;
+  character?: CharacterState;
   id: string;
   parentId?: string;
   group: boolean;
@@ -58,6 +66,44 @@ export function compileChoreography(
   paint: (paint: Paint) => Color,
 ): Choreography {
   const byId = new Map(nodes.map((node) => [node.id, node]));
+  const checked = new Set<string>(),
+    visiting = new Set<string>();
+  function check(node: NodeFrame) {
+    if (checked.has(node.id)) return;
+    if (visiting.has(node.id))
+      throw new Error(`attachment ${node.id}: cyclic relationship`);
+    visiting.add(node.id);
+    if (node.attachment) {
+      const target = byId.get(node.attachment.target);
+      if (!target || target.parentId !== node.parentId)
+        throw new Error(
+          `attachment ${node.id}: target must be an existing sibling`,
+        );
+      const names: readonly string[] = [
+        'center',
+        'top',
+        'bottom',
+        'left',
+        'right',
+        ...(target.character ? characterAnchorNames : []),
+      ];
+      if (!names.includes(node.attachment.anchor))
+        throw new Error(
+          `attachment ${node.id}: unknown anchor ${node.attachment.anchor}`,
+        );
+      if (
+        node.startFrame < target.startFrame ||
+        node.endFrame > target.endFrame
+      )
+        throw new Error(
+          `attachment ${node.id}: interval must fit target visibility`,
+        );
+      check(target);
+    }
+    visiting.delete(node.id);
+    checked.add(node.id);
+  }
+  nodes.forEach(check);
   const clips: Clip[] = [];
   for (const animation of scene.animations ?? []) {
     const intervals = staggerFrames(
@@ -173,10 +219,29 @@ export function evaluateChoreography(
         node.cx + x - c * node.cx + s * node.cy,
         node.cy + y - s * node.cx - c * node.cy,
       ];
-      const parent = node.parentId
+      let parent = node.parentId
         ? state(node.parentId)
         : { matrix: identity, opacity: 1 };
-      const matrix = multiply(parent.matrix, local);
+      let placement: Matrix = identity;
+      if (node.attachment) {
+        const target = nodes.get(node.attachment.target)!;
+        parent = state(target.id);
+        const anchor = resolveAnchor(
+          target,
+          node.attachment.anchor,
+          at,
+          choreography.reduced,
+        );
+        placement = [
+          1,
+          0,
+          0,
+          1,
+          anchor.x + node.attachment.offset.x - node.cx,
+          anchor.y + node.attachment.offset.y - node.cy,
+        ];
+      }
+      const matrix = multiply(parent.matrix, multiply(placement, local));
       opacity *= parent.opacity;
       if (![...matrix, opacity].every(Number.isFinite))
         throw new Error(`motion ${id}: numeric overflow`);
@@ -220,4 +285,46 @@ export function evaluateChoreography(
     }
   }
   return { state, camera };
+}
+
+/** Character drawing and anchor use the same aspect-preserving viewport mapping. */
+export function resolveAnchor(
+  node: NodeFrame,
+  name: string,
+  frame: number,
+  reduced: boolean,
+): Point {
+  if (
+    node.character &&
+    (characterAnchorNames as readonly string[]).includes(name)
+  ) {
+    const sampled = evaluateCharacter(
+      node.character,
+      Math.max(0, frame - node.startFrame),
+      reduced,
+    );
+    const anchor =
+      sampled.anchors[name as (typeof characterAnchorNames)[number]];
+    const scale = Math.min(node.width / 100, node.height / 200);
+    return {
+      x: node.cx + (anchor.x - 50) * scale,
+      y: node.cy + (anchor.y - 100) * scale,
+    };
+  }
+  return {
+    x:
+      node.cx +
+      (name === 'left'
+        ? -node.width / 2
+        : name === 'right'
+          ? node.width / 2
+          : 0),
+    y:
+      node.cy +
+      (name === 'top'
+        ? -node.height / 2
+        : name === 'bottom'
+          ? node.height / 2
+          : 0),
+  };
 }

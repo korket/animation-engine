@@ -4,6 +4,8 @@ import { parseLayout, parsePosition } from './layout.ts';
 import type { Position, Layout } from './layout.ts';
 import { parseAnimations, parseCamera } from './choreography.ts';
 import type { AnimationClip, CameraClip } from './choreography.ts';
+import { parseCharacter, parseAttachment } from './character.ts';
+import type { CharacterDefinition, Attachment } from './character.ts';
 export type { Position } from './layout.ts';
 
 /** Literal colors for basic SVG geometry; semantic asset styling arrives separately. */
@@ -12,6 +14,7 @@ export type Paint = Color | `role:${string}`;
 export type ThemeReference = Readonly<{ id: string; version: string }>;
 
 type NodeBase = Readonly<{
+  attachment?: Attachment;
   id: string;
   position: Position;
   start: number;
@@ -20,6 +23,8 @@ type NodeBase = Readonly<{
 
 export type SceneNode = NodeBase &
   (
+    | (CharacterDefinition &
+        Readonly<{ type: 'character'; width: number; height: number }>)
     | Readonly<{
         type: 'group';
         width: number;
@@ -134,6 +139,13 @@ export function parseScene(input: unknown): Scene {
         'assetId',
         'assetVersion',
         'layout',
+        'attachment',
+        'characterId',
+        'characterVersion',
+        'pose',
+        'expression',
+        'walkStepDuration',
+        'actions',
       ]);
       const id = text(node.id, `${p}.id`);
       if (ids.has(id)) fail(`${p}.id`, `duplicate node ID "${id}"`);
@@ -150,14 +162,44 @@ export function parseScene(input: unknown): Scene {
           'node interval must fit within its parent interval',
         );
       }
-      const common = ['id', 'type', 'position', 'start', 'duration'];
+      const common = [
+        'id',
+        'type',
+        'position',
+        'start',
+        'duration',
+        'attachment',
+      ];
       const base = {
         id,
         start,
         duration,
         position: parsePosition(node.position, `${p}.position`),
+        ...(node.attachment !== undefined
+          ? { attachment: parseAttachment(node.attachment, `${p}.attachment`) }
+          : {}),
       };
       switch (node.type) {
+        case 'character':
+          object(node, p, [
+            ...common,
+            'width',
+            'height',
+            'characterId',
+            'characterVersion',
+            'pose',
+            'expression',
+            'walkStepDuration',
+            'actions',
+          ]);
+          if (!theme) fail(p, 'character nodes require an explicit theme');
+          return {
+            ...base,
+            type: 'character',
+            width: positive(node.width, `${p}.width`),
+            height: positive(node.height, `${p}.height`),
+            ...parseCharacter(node, p, fps, length),
+          };
         case 'circle':
           object(node, p, [...common, 'radius', 'fill']);
           return {
@@ -212,7 +254,10 @@ export function parseScene(input: unknown): Scene {
           };
         }
         default:
-          return fail(`${p}.type`, 'expected group, circle, rect, or asset');
+          return fail(
+            `${p}.type`,
+            'expected group, circle, rect, asset, or character',
+          );
       }
     });
   }
