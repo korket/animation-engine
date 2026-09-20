@@ -111,7 +111,30 @@ AGENTS files and the original specification are excluded from automatic formatti
 There are no Git hooks. Agent commits follow the automatic commit policy in
 the root `AGENTS.md`.
 
-## Purpose
+## Themed assets
+
+```text
+pnpm render:scene tests/fixtures/assets-v1.json out/assets
+pnpm test:assets
+```
+
+`pnpm dev:renderer` includes an `Assets` preview using the same checked-in SVGs.
+`test:assets` verifies both theme versions, pinned phone revisions, book styling,
+aspect ratio, source usage records, and real MP4 metadata. Output goes to
+`out/assets/`, with the second theme in `theme variant with spaces/`.
+
+The registry and theme definitions are in `packages/assets/catalog.json`.
+Use the `@animation-engine/assets` API's `searchAssets(library, query, filters)`
+for deterministic metadata search and `assets/node`'s `loadAssetLibrary()` for
+local loading. Asset versions and themes are selected explicitly in scene JSON.
+Do not edit the SVG or checksum of an existing version to change its visuals.
+Add a new version and reference it deliberately. See [the asset contract](ASSET_SYSTEM.md).
+
+The SVG loader uses pinned `@xmldom/xmldom` 0.9.12; all parser diagnostics and
+unsupported SVG features fail. It adds no network media or system dependencies.
+The existing smoke and core scene commands remain supported regression checks.
+
+## Engineering procedure
 
 This document defines how engineering changes should be approached across the repository.
 

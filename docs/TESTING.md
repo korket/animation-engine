@@ -80,7 +80,39 @@ rejected missing arguments and a smoke-format input with nonzero exit codes.
 No dependencies were added. Linux execution remains pending for the host reason
 recorded above; the extended CI jobs have not been run remotely.
 
-## Principle
+## Milestone 2 verification
+
+`pnpm test` covers exact asset/theme lookup, deterministic semantic metadata
+search, malformed/unsupported SVG, semantic paint/token rules, source checksums,
+style compatibility, usage records, versioned scene references, and preservation
+of earlier scene behavior. The asset loader tests read the real checked-in SVGs.
+
+`pnpm test:assets` renders a phone and book from semantic IDs. At frame 30 the
+phone switches from its pinned version 1 to version 2. PNGs at 0, 29, 30, and 59
+check revision selection, palette roles, outlines, geometry, and scene background.
+A second real render pins theme version 2 and widens the asset viewports; checks
+confirm the new palette/outline width while preserving the artwork's aspect ratio.
+Both MP4s must be 640×360, H.264, 30 fps, 2 seconds, and 60 video packets.
+
+`out/assets/` contains the video, reference frames, node/asset usage manifest,
+and a verification report written after all checks pass. The alternate theme
+has a subdirectory with spaces. Inspect reference images, play the actual video,
+and inspect the `Assets` composition in Studio. CI runs this in addition to both
+earlier render suites on Windows and Ubuntu and retains artifacts for seven days.
+Theme design remains a review candidate; technical verification is not channel
+style approval. Linux execution remains pending until the CI job or equivalent
+Linux verification passes.
+
+### Asset verification record — 2026-09-20
+
+Windows: frozen-lockfile installation, `pnpm verify` (183 tests and both builds),
+all three render verification suites, Studio's `Assets` preview, reference PNGs
+for both themes, and actual MP4 playback passed locally. The public render command
+also succeeded with a spaced output path. No dependency versions were upgraded;
+the XML parser is the sole new external dependency. Linux CI has been extended
+but has not been run remotely. The palette remains a review candidate.
+
+## Regression principle
 
 Tests document supported behavior and protect the codebase from regressions.
 

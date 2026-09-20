@@ -61,3 +61,14 @@ jobs:
           path: workspace with spaces/out/scene/
           if-no-files-found: warn
           retention-days: 7
+      - name: Verify themed assets and pinned revisions
+        working-directory: workspace with spaces
+        run: pnpm test:assets
+      - name: Upload asset render evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assets-${{ matrix.os }}
+          path: workspace with spaces/out/assets/
+          if-no-files-found: warn
+          retention-days: 7

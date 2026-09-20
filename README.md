@@ -1,9 +1,9 @@
 # Animation engine
 
 Local-first, deterministic SVG animation rendered through Remotion.
-Milestone 1 adds a versioned JSON scene tree, deterministic geometry and timing,
-and local SVG-to-MP4 rendering. The Milestone 0 circle fade remains a regression
-fixture; the dashboard remains a bootstrap page.
+Milestone 2 adds versioned semantic SVG assets and theme styling to the JSON scene
+runtime and local MP4 renderer. The earlier scene and circle-fade fixtures remain
+regression checks; the dashboard remains a bootstrap page.
 
 ## Quick start
 
@@ -19,14 +19,16 @@ The dashboard opens at <http://127.0.0.1:5173>. In another terminal:
 
 ```text
 pnpm dev:renderer
+pnpm render:scene tests/fixtures/assets-v1.json out/assets
+pnpm test:assets
 pnpm render:scene tests/fixtures/scene-v1.json
 pnpm test:scene
 pnpm render:smoke
 pnpm test:render
 ```
 
-Remotion Studio provides `Scene` and `Smoke` composition previews. Core scene
-artifacts are written under `out/scene/`; smoke artifacts under `out/smoke/`.
+Remotion Studio provides `Assets`, `Scene`, and `Smoke` previews. The themed proof
+above writes `out/assets/`; core and smoke checks write `out/scene/` and `out/smoke/`.
 Initial rendering downloads a managed browser and
 requires internet access; the scene itself uses no network media.
 
