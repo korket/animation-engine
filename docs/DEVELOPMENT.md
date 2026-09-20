@@ -134,6 +134,20 @@ The SVG loader uses pinned `@xmldom/xmldom` 0.9.12; all parser diagnostics and
 unsupported SVG features fail. It adds no network media or system dependencies.
 The existing smoke and core scene commands remain supported regression checks.
 
+## Layout and animation
+
+```text
+pnpm render:scene tests/fixtures/motion-v1.json out/motion
+pnpm test:motion
+```
+
+Studio includes a `Motion` composition. The render verifier also writes a primitive
+grid and a reduced-motion variant under `out/motion/`; both are real MP4 renders.
+Use scene `motionMode: "reduced"` for the gentler version. Rendering never consults
+the host OS motion preference. See [ANIMATION.md](ANIMATION.md) for contracts,
+named layout slots, effects, timing, and camera behavior. No new external motion
+library is needed.
+
 ## Engineering procedure
 
 This document defines how engineering changes should be approached across the repository.

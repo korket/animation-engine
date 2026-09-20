@@ -81,6 +81,20 @@ hash. Successful local renders write `scene-resources.json` beside the video for
 scene-level usage/debugging. This is not an episode database or an approval lock.
 Episode-level usage indexing remains with the later persistence milestone.
 
+## Milestone 3 layout and motion
+
+The sixth active workspace, `animation`, owns pure effect/camera sampling, named
+easing, and stagger expansion. It depends on no other workspace. Scene-schema uses
+its parameter validators; engine owns layout resolution, clip/reference validation,
+group transform composition, and camera evaluation. Renderer only applies resolved
+matrices/opacity and draws resolved highlight outlines.
+
+Static compiled scenes retain their prior structure. Motion-bearing scenes retain
+resolved node bounds/parent IDs and compiled frame intervals. Each frame is evaluated
+from that immutable data without playback state. Group transforms use affine matrices
+around base centers; relative placement is resolved before animation. This separation
+keeps random-access rendering and camera-follow behavior reproducible.
+
 Keep the following invariants visible:
 
 - AI plans; deterministic code renders.

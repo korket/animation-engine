@@ -72,3 +72,14 @@ jobs:
           path: workspace with spaces/out/assets/
           if-no-files-found: warn
           retention-days: 7
+      - name: Verify layouts, animation, and camera renders
+        working-directory: workspace with spaces
+        run: pnpm test:motion
+      - name: Upload motion render evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: motion-${{ matrix.os }}
+          path: workspace with spaces/out/motion/
+          if-no-files-found: warn
+          retention-days: 7

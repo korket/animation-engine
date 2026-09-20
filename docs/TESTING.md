@@ -112,6 +112,34 @@ also succeeded with a spaced output path. No dependency versions were upgraded;
 the XML parser is the sole new external dependency. Linux CI has been extended
 but has not been run remotely. The palette remains a review candidate.
 
+## Milestone 3 verification
+
+`pnpm test:motion` renders the four-second motion fixture, a generated primitive
+grid, and a reduced-motion variant. Explicit reference pixels cover entrances,
+exits, intermediate transforms, highlight, group pivots/opacity, stagger, camera
+pan/push/follow endpoints, and endpoint holds. Samples avoid antialiased edges.
+The grid's final hold starts at frame 75, when its last staggered entrance ends.
+All three actual MP4s are checked for H.264, dimensions, duration, frame rate,
+and video packet count. Generated JSON is reloaded through the production loader.
+
+Artifacts and the success-only report live in `out/motion/`, including output
+paths with spaces. Unit tests cover every implemented primitive and named layout,
+validation, visibility containment, reference cycles, group composition, reduced
+motion, moving camera targets, and deterministic arbitrary frame evaluation.
+CI runs all four render suites on Windows and Ubuntu and retains their artifacts.
+Inspect reference PNGs and play the motion video before accepting visual changes.
+The deferred text/path/expression primitives are listed in `ANIMATION.md`.
+
+### Layout and motion verification record — 2026-09-20
+
+Windows: frozen-lockfile installation, `pnpm verify` (260 tests and both builds),
+all four render suites, reference PNG inspection, and normal-speed four-second
+MP4 playback passed locally. The first in-app player crashed during interaction;
+a fresh player completed playback at rate 1 without a media error. Motion,
+primitive-grid, and reduced-motion renders passed their pixel/metadata checks.
+No external dependencies were added or upgraded. Linux CI includes the new suite
+but remains unverified for the host limitation recorded above.
+
 ## Regression principle
 
 Tests document supported behavior and protect the codebase from regressions.

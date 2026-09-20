@@ -18,6 +18,13 @@ add asset generation, remote catalogs, episode indexing, layout templates,
 character systems, animation primitives, or dashboard asset management. Supported
 SVG is deliberately restricted; the palette and prop rules remain review candidates.
 
+Milestone 3 adds layout slots, sibling-relative positions, group motion, tested
+object primitives, frame-based stagger, named easing, reduced motion, and 2D
+camera pan/push/follow. It does not add text/counting, path drawing, expression
+swaps, character anchors, 3D cameras, or a timeline editor. The broader primitive
+target remains a before-production requirement, not a reason to build later
+character/chart capabilities prematurely.
+
 The wider v1 exclusions remain authoritative in
 [the handoff](ENGINEERING_HANDOFF.md#62-explicit-v1-non-goals). In particular, do
 not add a general video editor, generative video, final TTS, or cloud render farm.
