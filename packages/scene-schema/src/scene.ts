@@ -3,6 +3,8 @@ import { timeToFrames } from './timing.ts';
 
 /** Literal colors for basic SVG geometry; semantic asset styling arrives separately. */
 export type Color = `#${string}`;
+export type Paint = Color | `role:${string}`;
+export type ThemeReference = Readonly<{ id: string; version: string }>;
 export type Position = 'center' | Readonly<{ x: number; y: number }>;
 
 type NodeBase = Readonly<{
@@ -20,8 +22,15 @@ export type SceneNode = NodeBase &
         height: number;
         children: readonly SceneNode[];
       }>
-    | Readonly<{ type: 'circle'; radius: number; fill: Color }>
-    | Readonly<{ type: 'rect'; width: number; height: number; fill: Color }>
+    | Readonly<{ type: 'circle'; radius: number; fill: Paint }>
+    | Readonly<{ type: 'rect'; width: number; height: number; fill: Paint }>
+    | Readonly<{
+        type: 'asset';
+        width: number;
+        height: number;
+        assetId: string;
+        assetVersion: string;
+      }>
   );
 
 export type Scene = Readonly<{
@@ -34,11 +43,16 @@ export type Scene = Readonly<{
   height: number;
   fps: number;
   duration: number;
-  background: Color;
+  background: Paint;
+  theme?: ThemeReference;
   nodes: readonly SceneNode[];
 }>;
 
-function color(input: unknown, path: string): Color {
+function color(input: unknown, path: string, themed: boolean): Paint {
+  if (typeof input === 'string' && /^role:[a-z][a-z0-9_-]*$/.test(input)) {
+    if (!themed) fail(path, 'semantic colors require an explicit theme');
+    return input as Paint;
+  }
   if (typeof input !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(input)) {
     return fail(path, 'expected a six-digit hex color');
   }
@@ -73,6 +87,7 @@ export function parseScene(input: unknown): Scene {
     'duration',
     'background',
     'nodes',
+    'theme',
   ]);
   if (scene.schemaVersion !== 1)
     fail('scene.schemaVersion', 'only version 1 is supported');
@@ -82,6 +97,16 @@ export function parseScene(input: unknown): Scene {
   if (totalFrames === 0)
     fail('scene.duration', 'must contain at least one frame');
   const ids = new Set<string>();
+  let theme: ThemeReference | undefined;
+  if (scene.theme !== undefined) {
+    const value = object(scene.theme, 'scene.theme', ['id', 'version']);
+    theme = {
+      id: text(value.id, 'scene.theme.id'),
+      version: text(value.version, 'scene.theme.version'),
+    };
+    if (!/^[1-9]\d*$/.test(theme.version))
+      fail('scene.theme.version', 'expected explicit positive version string');
+  }
 
   function nodes(
     input: unknown,
@@ -102,6 +127,8 @@ export function parseScene(input: unknown): Scene {
         'radius',
         'fill',
         'children',
+        'assetId',
+        'assetVersion',
       ]);
       const id = text(node.id, `${p}.id`);
       if (ids.has(id)) fail(`${p}.id`, `duplicate node ID "${id}"`);
@@ -132,7 +159,7 @@ export function parseScene(input: unknown): Scene {
             ...base,
             type: 'circle',
             radius: positive(node.radius, `${p}.radius`),
-            fill: color(node.fill, `${p}.fill`),
+            fill: color(node.fill, `${p}.fill`, !!theme),
           };
         case 'rect':
           object(node, p, [...common, 'width', 'height', 'fill']);
@@ -141,7 +168,7 @@ export function parseScene(input: unknown): Scene {
             type: 'rect',
             width: positive(node.width, `${p}.width`),
             height: positive(node.height, `${p}.height`),
-            fill: color(node.fill, `${p}.fill`),
+            fill: color(node.fill, `${p}.fill`, !!theme),
           };
         case 'group':
           object(node, p, [...common, 'width', 'height', 'children']);
@@ -152,8 +179,32 @@ export function parseScene(input: unknown): Scene {
             height: positive(node.height, `${p}.height`),
             children: nodes(node.children, `${p}.children`, length),
           };
+        case 'asset': {
+          object(node, p, [
+            ...common,
+            'width',
+            'height',
+            'assetId',
+            'assetVersion',
+          ]);
+          if (!theme) fail(p, 'asset nodes require an explicit theme');
+          const assetVersion = text(node.assetVersion, `${p}.assetVersion`);
+          if (!/^[1-9]\d*$/.test(assetVersion))
+            fail(
+              `${p}.assetVersion`,
+              'expected explicit positive version string',
+            );
+          return {
+            ...base,
+            type: 'asset',
+            width: positive(node.width, `${p}.width`),
+            height: positive(node.height, `${p}.height`),
+            assetId: text(node.assetId, `${p}.assetId`),
+            assetVersion,
+          };
+        }
         default:
-          return fail(`${p}.type`, 'expected group, circle, or rect');
+          return fail(`${p}.type`, 'expected group, circle, rect, or asset');
       }
     });
   }
@@ -176,7 +227,8 @@ export function parseScene(input: unknown): Scene {
     height: number(scene.height, 'scene.height', true, 1),
     fps,
     duration,
-    background: color(scene.background, 'scene.background'),
+    background: color(scene.background, 'scene.background', !!theme),
+    ...(theme ? { theme } : {}),
     nodes: nodes(scene.nodes, 'scene.nodes', totalFrames),
   };
 }

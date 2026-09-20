@@ -36,3 +36,9 @@ identifies the compatible role/token contract; it is separate from a theme's
 visual version. Assets and themes must agree on that contract. The supplied
 phone and book are original geometric fixtures; both themes are review candidates.
 No asset generation, remote search, persistence, or episode registry is introduced.
+
+The scene compiler emits node-level usage records with exact asset versions and
+hashes plus the theme identity/version/style contract. Successful local renders
+write these to `scene-resources.json`, keyed by scene ID. References, including
+assets on later frames, resolve before rendering; missing/incompatible content
+fails instead of being substituted. Episode aggregation is deferred to persistence.

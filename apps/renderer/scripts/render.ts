@@ -1,4 +1,6 @@
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { loadAssetLibrary } from '@animation-engine/assets/node';
+import type { AssetLibrary } from '@animation-engine/assets';
 import { resolve } from 'node:path';
 import type { Scene, SmokeScene } from '@animation-engine/scene-schema';
 import { sceneRenderSettings } from './scene-settings.ts';
@@ -30,16 +32,33 @@ export async function renderScene(
   directory: string,
   serveUrl: string,
   referenceFrames?: readonly number[],
+  suppliedLibrary?: AssetLibrary,
 ) {
-  const { frames } = sceneRenderSettings(scene, referenceFrames);
-  return renderComposition(
+  const library =
+    suppliedLibrary ?? (scene.theme ? await loadAssetLibrary() : undefined);
+  const { frames, scene: compiled } = sceneRenderSettings(
+    scene,
+    referenceFrames,
+    library,
+  );
+  const result = await renderComposition(
     scene,
     directory,
     serveUrl,
     'Scene',
     'scene.mp4',
     frames,
+    library,
   );
+  await writeFile(
+    resolve(directory, 'scene-resources.json'),
+    JSON.stringify(
+      { sceneId: scene.id, resources: compiled.resources ?? null },
+      null,
+      2,
+    ) + '\n',
+  );
+  return result;
 }
 
 async function renderComposition(
@@ -49,10 +68,12 @@ async function renderComposition(
   id: string,
   filename: string,
   frames: readonly number[],
+  library?: AssetLibrary,
 ) {
   await mkdir(directory, { recursive: true });
   // A failed or ordinary rerender must not retain a previous success report.
   await rm(resolve(directory, 'verification.json'), { force: true });
+  await rm(resolve(directory, 'scene-resources.json'), { force: true });
   const installed = await ensureBrowser({ chromeMode: 'headless-shell' });
   if (
     installed.type !== 'local-puppeteer-browser' &&
@@ -65,7 +86,7 @@ async function renderComposition(
     chromeMode: 'headless-shell',
   });
   try {
-    const inputProps = { scene };
+    const inputProps = { scene, ...(library ? { library } : {}) };
     const composition = await selectComposition({
       serveUrl,
       id,

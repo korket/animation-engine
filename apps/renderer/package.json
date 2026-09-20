@@ -10,9 +10,11 @@
     "render:smoke": "tsx scripts/render-smoke.ts",
     "test:render": "tsx scripts/verify-render.ts",
     "render:scene": "tsx scripts/render-scene.ts",
-    "test:scene": "tsx scripts/verify-scene.ts"
+    "test:scene": "tsx scripts/verify-scene.ts",
+    "test:assets": "tsx scripts/verify-assets.ts"
   },
   "dependencies": {
+    "@animation-engine/assets": "workspace:*",
     "@animation-engine/engine": "workspace:*",
     "@animation-engine/scene-schema": "workspace:*",
     "@remotion/bundler": "4.0.526",

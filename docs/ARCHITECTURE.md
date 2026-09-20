@@ -62,6 +62,25 @@ H.264 settings, with browser cleanup in `finally`.
 
 As architecture is established, document only durable decisions that future maintainers need to understand.
 
+## Milestone 2 style and assets
+
+`assets` is now a fifth active workspace. It owns versioned themes, semantic
+metadata/search, strict SVG parsing, and styled artwork. `engine` depends on it
+to resolve asset IDs and paint into deterministic frame data. `scene-schema`
+continues to depend on neither assets nor rendering. Dependency direction is
+`scene-schema + assets → engine → renderer`.
+
+Filesystem/checksum work lives in `assets/node`. The renderer loads that library
+before bundling themed scenes and passes it with the scene through metadata
+selection and frame rendering. Studio's `Assets` composition bundles the same
+SVG files with a shared webpack source rule. Typed SVG primitives are rendered
+as React elements; arbitrary markup is never inserted.
+
+Compiling records the exact theme and each node's asset ID, revision, and source
+hash. Successful local renders write `scene-resources.json` beside the video for
+scene-level usage/debugging. This is not an episode database or an approval lock.
+Episode-level usage indexing remains with the later persistence milestone.
+
 Keep the following invariants visible:
 
 - AI plans; deterministic code renders.

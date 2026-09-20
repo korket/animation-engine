@@ -6,5 +6,5 @@
     "types": ["node"],
     "allowImportingTsExtensions": true
   },
-  "include": ["scripts"]
+  "include": ["scripts", "remotion.config.ts"]
 }

@@ -5,10 +5,14 @@ import fixture from '../../../tests/fixtures/smoke.json';
 import { SmokeComposition } from './SmokeComposition';
 import coreFixture from '../../../tests/fixtures/scene-v1.json';
 import { SceneComposition } from './SceneComposition';
+import { builtinLibrary } from '@animation-engine/assets/builtin';
+import assetFixture from '../../../tests/fixtures/assets-v1.json';
 
 const scene = parseSmokeScene(fixture);
 const coreScene = parseScene(coreFixture);
 const compiled = compileScene(coreScene);
+const assetScene = parseScene(assetFixture);
+const assetCompiled = compileScene(assetScene, builtinLibrary);
 
 export function RemotionRoot() {
   return (
@@ -33,6 +37,29 @@ export function RemotionRoot() {
         }}
       />
       <Composition
+        id="Assets"
+        component={SceneComposition}
+        width={assetCompiled.width}
+        height={assetCompiled.height}
+        fps={assetCompiled.fps}
+        durationInFrames={assetCompiled.durationInFrames}
+        defaultProps={{ scene: assetScene, library: builtinLibrary }}
+        calculateMetadata={({ props }) => {
+          const validated = parseScene(props.scene);
+          const runtime = compileScene(validated, props.library);
+          return {
+            width: runtime.width,
+            height: runtime.height,
+            fps: runtime.fps,
+            durationInFrames: runtime.durationInFrames,
+            props: {
+              scene: validated,
+              ...(props.library ? { library: props.library } : {}),
+            },
+          };
+        }}
+      />
+      <Composition
         id="Scene"
         component={SceneComposition}
         width={compiled.width}
@@ -42,13 +69,16 @@ export function RemotionRoot() {
         defaultProps={{ scene: coreScene }}
         calculateMetadata={({ props }) => {
           const validated = parseScene(props.scene);
-          const runtime = compileScene(validated);
+          const runtime = compileScene(validated, props.library);
           return {
             width: runtime.width,
             height: runtime.height,
             fps: runtime.fps,
             durationInFrames: runtime.durationInFrames,
-            props: { scene: validated },
+            props: {
+              scene: validated,
+              ...(props.library ? { library: props.library } : {}),
+            },
           };
         }}
       />

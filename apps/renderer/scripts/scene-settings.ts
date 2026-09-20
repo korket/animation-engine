@@ -1,11 +1,13 @@
 import { compileScene } from '@animation-engine/engine';
+import type { AssetLibrary } from '@animation-engine/assets';
 
 // Codec constraints belong at the export boundary, not in scene semantics.
 export function sceneRenderSettings(
   input: unknown,
   referenceFrames?: readonly number[],
+  library?: AssetLibrary,
 ) {
-  const scene = compileScene(input);
+  const scene = compileScene(input, library);
   if (scene.width % 2 !== 0 || scene.height % 2 !== 0) {
     throw new Error(
       'H.264 yuv420p export requires even scene.width and scene.height',

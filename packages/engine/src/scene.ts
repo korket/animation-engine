@@ -1,21 +1,44 @@
 import { parseScene, timeToFrames } from '@animation-engine/scene-schema';
-import type { Color, SceneNode } from '@animation-engine/scene-schema';
+import type { Color, SceneNode, Paint } from '@animation-engine/scene-schema';
+import {
+  findAsset,
+  findTheme,
+  resolvePaint,
+  styleArtwork,
+} from '@animation-engine/assets';
+import type { AssetLibrary, StyledShape } from '@animation-engine/assets';
 
 type ElementBase = Readonly<{
   id: string;
-  fill: Color;
   startFrame: number;
   endFrame: number;
 }>;
 export type SceneElement = ElementBase &
   (
-    | Readonly<{ type: 'circle'; cx: number; cy: number; radius: number }>
+    | Readonly<{
+        type: 'circle';
+        cx: number;
+        cy: number;
+        radius: number;
+        fill: Color;
+      }>
     | Readonly<{
         type: 'rect';
         x: number;
         y: number;
         width: number;
         height: number;
+        fill: Color;
+      }>
+    | Readonly<{
+        type: 'asset';
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        viewBoxWidth: number;
+        viewBoxHeight: number;
+        shapes: readonly StyledShape[];
       }>
   );
 
@@ -27,6 +50,15 @@ export type CompiledScene = Readonly<{
   durationInFrames: number;
   background: Color;
   elements: readonly SceneElement[];
+  resources?: Readonly<{
+    theme: { id: string; version: string; styleVersion: string };
+    assets: readonly {
+      nodeId: string;
+      assetId: string;
+      version: string;
+      sha256: string;
+    }[];
+  }>;
 }>;
 
 export type SceneFrame = Readonly<{
@@ -37,9 +69,31 @@ export type SceneFrame = Readonly<{
 }>;
 
 /** Validate and compile a tree into an ordered display list in canvas coordinates. */
-export function compileScene(input: unknown): CompiledScene {
+export function compileScene(
+  input: unknown,
+  library?: AssetLibrary,
+): CompiledScene {
   const scene = parseScene(input);
   const elements: SceneElement[] = [];
+  if (scene.theme && !library)
+    throw new Error('scene.theme: asset library is required');
+  const theme =
+    scene.theme && library
+      ? findTheme(library, scene.theme.id, scene.theme.version)
+      : undefined;
+  const usage: {
+    nodeId: string;
+    assetId: string;
+    version: string;
+    sha256: string;
+  }[] = [];
+  const paint = (value: Paint): Color => {
+    if (value.startsWith('#')) return value as Color;
+    if (!theme) throw new Error('semantic paint requires a theme');
+    const resolved = resolvePaint(value, theme);
+    if (resolved === 'none') throw new Error('scene paint cannot be none');
+    return resolved;
+  };
 
   function visit(
     nodes: readonly SceneNode[],
@@ -76,6 +130,33 @@ export function compileScene(input: unknown): CompiledScene {
       }
       if (node.type === 'group') {
         visit(node.children, { x, y, width, height, startFrame });
+      } else if (node.type === 'asset') {
+        if (!library || !theme)
+          throw new Error(`asset ${node.id}: theme and library are required`);
+        const asset = findAsset(library, node.assetId, node.assetVersion);
+        if (asset.styleVersion !== theme.styleVersion)
+          throw new Error(
+            `asset ${node.id}: style version ${asset.styleVersion} is incompatible with theme style ${theme.styleVersion}`,
+          );
+        elements.push({
+          id: node.id,
+          type: 'asset',
+          x,
+          y,
+          width,
+          height,
+          startFrame,
+          endFrame,
+          viewBoxWidth: asset.artwork.width,
+          viewBoxHeight: asset.artwork.height,
+          shapes: styleArtwork(asset.artwork, theme),
+        });
+        usage.push({
+          nodeId: node.id,
+          assetId: asset.id,
+          version: asset.version,
+          sha256: asset.sha256,
+        });
       } else if (node.type === 'circle') {
         elements.push({
           id: node.id,
@@ -83,7 +164,7 @@ export function compileScene(input: unknown): CompiledScene {
           cx,
           cy,
           radius: node.radius,
-          fill: node.fill,
+          fill: paint(node.fill),
           startFrame,
           endFrame,
         });
@@ -95,7 +176,7 @@ export function compileScene(input: unknown): CompiledScene {
           y,
           width,
           height,
-          fill: node.fill,
+          fill: paint(node.fill),
           startFrame,
           endFrame,
         });
@@ -116,8 +197,20 @@ export function compileScene(input: unknown): CompiledScene {
     height: scene.height,
     fps: scene.fps,
     durationInFrames: timeToFrames(scene.duration, scene.fps),
-    background: scene.background,
+    background: paint(scene.background),
     elements,
+    ...(theme
+      ? {
+          resources: {
+            theme: {
+              id: theme.id,
+              version: theme.version,
+              styleVersion: theme.styleVersion,
+            },
+            assets: usage,
+          },
+        }
+      : {}),
   };
 }
 

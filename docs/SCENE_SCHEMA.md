@@ -38,8 +38,8 @@ No raw positioning escape hatch is implemented for this semantic-only fixture.
 `id`, `purpose`, `emotion`, `importance` (`low`, `medium`, or `high`), `width`,
 `height`, `fps`, `duration`, `background`, and `nodes`. These fields are required.
 Dimensions and fps are positive safe integers. Duration is positive seconds.
-Colors are six-digit hex literals for basic SVG geometry; semantic asset/style
-lookup belongs to Milestone 2. This low-level geometry path does not yet implement
+Colors were initially six-digit hex literals; the Milestone 2 extension below adds
+semantic asset/style lookup. This low-level geometry path does not yet implement
 the templates, actors, layouts, or animations shown in the handoff's full example.
 
 Nodes form an ordered tree and have globally unique, nonempty IDs. Every node
@@ -84,12 +84,37 @@ Changes to version 1's field meanings require a new schema version and a migrati
 decision. No migration is needed for the additive introduction of version 1.
 Group bounds, center positioning, ordered painting, and frame-grid timing are
 the minimum explicit contracts needed to verify a reusable scene graph. Anchors,
-rotations/scales, layout templates, easing, and asset identity are deferred.
+rotations/scales, layout templates, and easing are deferred. Asset identity is
+added by the Milestone 2 extension below.
 
 SVG accepts odd canvas dimensions. The local H.264/yuv420p export additionally
 requires even width and height and rejects incompatible settings before rendering.
 
-## Future schema additions
+## Milestone 2: themed asset references
+
+Version 1 gains additive fields; all previous literal-color scenes remain valid
+and render identically. An optional `theme: { "id": "studio-proof", "version": "1" }`
+pins a visual theme. With a theme, background and primitive fills may use
+`role:<name>` in addition to their existing hex literals. Role lookup fails if
+the selected theme does not define that role. No implicit theme is selected.
+
+The new `asset` node requires the existing ID, position, start, and duration,
+plus `assetId`, explicit `assetVersion`, `width`, and `height`. It requires a scene
+theme. It cannot specify a file path, latest-version alias, literal fill override,
+or arbitrary SVG markup. Engine compilation resolves the semantic asset/version
+and checks its style-contract compatibility with the exact theme.
+
+Asset width/height define a viewport centered at its resolved position. Intrinsic
+SVG aspect ratio is preserved, centered with letterboxing when necessary; artwork
+is clipped to that viewport. Outlines and corners scale uniformly with artwork.
+Parent groups still translate only, and timing/paint order are unchanged.
+
+This extension is justified by Milestone 2's semantic-asset acceptance criterion.
+It does not alter version 1 field meanings or require migration. Older engines
+correctly reject the new fields/node kind. Existing smoke data stays independent.
+`tests/fixtures/assets-v1.json` demonstrates two pinned phone revisions and a book.
+
+## Future schema documentation
 
 When populated, document:
 

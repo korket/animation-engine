@@ -20,7 +20,14 @@ export type SmokeScene = Readonly<{
 import { fail, literal, number, object, text } from './validation.ts';
 
 export { parseScene } from './scene.ts';
-export type { Scene, SceneNode, Position, Color } from './scene.ts';
+export type {
+  Scene,
+  SceneNode,
+  Position,
+  Color,
+  Paint,
+  ThemeReference,
+} from './scene.ts';
 export { timeToFrames } from './timing.ts';
 
 export function parseSmokeScene(input: unknown): SmokeScene {

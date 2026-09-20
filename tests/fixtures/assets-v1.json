@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "asset-theme-proof",
+  "purpose": "Verify semantic asset identity, pinned revisions, and consistent theme styling",
+  "emotion": "neutral",
+  "importance": "medium",
+  "width": 640,
+  "height": 360,
+  "fps": 30,
+  "duration": 2,
+  "theme": { "id": "studio-proof", "version": "1" },
+  "background": "role:background",
+  "nodes": [
+    {
+      "id": "props",
+      "type": "group",
+      "position": "center",
+      "width": 480,
+      "height": 240,
+      "start": 0,
+      "duration": 2,
+      "children": [
+        {
+          "id": "phone-before",
+          "type": "asset",
+          "assetId": "prop_phone",
+          "assetVersion": "1",
+          "position": { "x": 120, "y": 120 },
+          "width": 100,
+          "height": 160,
+          "start": 0,
+          "duration": 1
+        },
+        {
+          "id": "phone-after",
+          "type": "asset",
+          "assetId": "prop_phone",
+          "assetVersion": "2",
+          "position": { "x": 120, "y": 120 },
+          "width": 100,
+          "height": 160,
+          "start": 1,
+          "duration": 1
+        },
+        {
+          "id": "book",
+          "type": "asset",
+          "assetId": "prop_book",
+          "assetVersion": "1",
+          "position": { "x": 360, "y": 120 },
+          "width": 100,
+          "height": 160,
+          "start": 0,
+          "duration": 2
+        }
+      ]
+    }
+  ]
+}

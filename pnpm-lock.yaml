@@ -60,6 +60,9 @@ importers:
 
   apps/renderer:
     dependencies:
+      '@animation-engine/assets':
+        specifier: workspace:*
+        version: link:../../packages/assets
       '@animation-engine/engine':
         specifier: workspace:*
         version: link:../../packages/engine
@@ -106,6 +109,9 @@ importers:
 
   packages/engine:
     dependencies:
+      '@animation-engine/assets':
+        specifier: workspace:*
+        version: link:../assets
       '@animation-engine/scene-schema':
         specifier: workspace:*
         version: link:../scene-schema
