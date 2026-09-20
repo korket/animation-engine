@@ -163,7 +163,15 @@ describe('asset registry', () => {
   it('fails on modified source bytes rather than accepting silent asset mutation', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'asset source '));
     directories.push(directory);
-    await cp(dirname(builtinCatalogPath), directory, { recursive: true });
+    await cp(
+      join(dirname(builtinCatalogPath), 'artwork'),
+      join(directory, 'artwork'),
+      { recursive: true },
+    );
+    await writeFile(
+      join(directory, 'catalog.json'),
+      await readFile(builtinCatalogPath),
+    );
     const path = join(directory, 'artwork/phone-v1.svg');
     await writeFile(
       path,
